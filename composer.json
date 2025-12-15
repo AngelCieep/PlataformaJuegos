@@ -18,6 +18,7 @@
         "symfony/form": "7.4.*",
         "symfony/framework-bundle": "7.4.*",
         "symfony/runtime": "7.4.*",
+        "symfony/security-bundle": "7.4.*",
         "symfony/security-csrf": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
         "symfony/validator": "7.4.*",
@@ -77,6 +78,7 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^4.3",
         "symfony/debug-bundle": "7.4.*",
         "symfony/maker-bundle": "^1.65",
         "symfony/web-profiler-bundle": "7.4.*"
