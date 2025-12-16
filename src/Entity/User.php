@@ -6,6 +6,8 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection; // AGREGAR ESTO
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -36,6 +38,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $token = null;
+
+    // AGREGAR ESTAS 3 PROPIEDADES NUEVAS:
+    #[ORM\Column]
+    private ?\DateTimeImmutable $fechaRegistro = null;
+
+    #[ORM\Column]
+    private ?bool $estado = true;
+
+    #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Partida::class)]
+    private Collection $partidas;
+
+    // AGREGAR ESTE CONSTRUCTOR (si no existe) o modificar si existe:
+    public function __construct()
+    {
+        // Si ya existe constructor, solo agrega estas líneas
+        $this->fechaRegistro = new \DateTimeImmutable();
+        $this->partidas = new ArrayCollection();
+        $this->estado = true;
+    }
 
     public function getId(): ?int
     {
@@ -139,6 +160,57 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->token = $token;
 
+        return $this;
+    }
+
+    // AGREGAR ESTOS 7 MÉTODOS NUEVOS AL FINAL:
+
+    public function getFechaRegistro(): ?\DateTimeImmutable
+    {
+        return $this->fechaRegistro;
+    }
+
+    public function setFechaRegistro(\DateTimeImmutable $fechaRegistro): static
+    {
+        $this->fechaRegistro = $fechaRegistro;
+        return $this;
+    }
+
+    public function isEstado(): ?bool
+    {
+        return $this->estado;
+    }
+
+    public function setEstado(bool $estado): static
+    {
+        $this->estado = $estado;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Partida>
+     */
+    public function getPartidas(): Collection
+    {
+        return $this->partidas;
+    }
+
+    public function addPartida(Partida $partida): static
+    {
+        if (!$this->partidas->contains($partida)) {
+            $this->partidas->add($partida);
+            $partida->setUsuario($this);
+        }
+        return $this;
+    }
+
+    public function removePartida(Partida $partida): static
+    {
+        if ($this->partidas->removeElement($partida)) {
+            if ($partida->getUsuario() === $this) {
+                $partida->setUsuario(null);
+            }
+        }
         return $this;
     }
 }
