@@ -10,9 +10,48 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         font-family: 'Arial', sans-serif;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
         min-height: 100vh;
+    }
+
+    .top-nav {
+        margin: 16px 0 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .nav-btn {
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    .nav-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 0.22);
+    }
+
+    .nav-btn.active-nav {
+        background: #ffffff;
+        color: #764ba2;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .nav-btn.logout {
+        background: #e74c3c;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .nav-btn.logout:hover {
+        background: #c0392b;
     }
 
     .game-container {
@@ -32,6 +71,11 @@
 
     .info-box {
         background: rgba(255, 255, 255, 0.9);
+
+        /* Evitar scroll con flechas y espacio durante el juego */
+        html, body {
+            overscroll-behavior: contain;
+        }
         padding: 15px;
         border-radius: 10px;
         min-width: 150px;
@@ -183,6 +227,18 @@
         z-index: 999;
     }
 </style>
+
+<div class="top-nav">
+    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game1' %} active-nav{% endif %}" href="{{ path('app_game1') }}">Juego 1</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game2' %} active-nav{% endif %}" href="{{ path('app_game2') }}">Juego 2</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game3' %} active-nav{% endif %}" href="{{ path('app_game3') }}">Juego 3</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game4' %} active-nav{% endif %}" href="{{ path('app_game4') }}">Juego 4</a>
+    {% if is_granted('ROLE_ADMIN') %}
+    <a class="nav-btn" href="{{ path('app_admin') }}">Admin</a>
+    {% endif %}
+    <a class="nav-btn logout" href="{{ path('app_logout') }}">Cerrar sesión</a>
+</div>
 
 <div class="game-container">
     <div class="left-panel">
@@ -580,6 +636,10 @@
     }
 
     document.addEventListener('keydown', (e) => {
+            // Evitar scroll de flechas y espacio
+            if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," ","Spacebar"].includes(e.key)) {
+                e.preventDefault();
+            }
         if (gameOver) return;
         
         if (e.key === 'p' || e.key === 'P') {

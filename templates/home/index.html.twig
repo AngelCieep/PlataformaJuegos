@@ -188,26 +188,35 @@
             <span class="status-badge available">Disponible</span>
         </a>
         
-        <a href="{{ path('app_game2') }}" class="game-card inactive">
+        <a href="{{ path('app_game2') }}" class="game-card active">
             <div class="icon">🎯</div>
             <h3>Juego 2</h3>
-            <p>Próximamente</p>
-            <span class="status-badge coming-soon">Próximamente</span>
+            <p>Juego disponible</p>
+            <span class="status-badge available">Disponible</span>
         </a>
         
-        <a href="{{ path('app_game3') }}" class="game-card inactive">
-            <div class="icon">🎲</div>
+        <a href="{{ path('app_game3') }}" class="game-card active">
+            <div class="icon">❌⭕</div>
             <h3>Juego 3</h3>
-            <p>Próximamente</p>
-            <span class="status-badge coming-soon">Próximamente</span>
+            <p>Tres en Raya</p>
+            <span class="status-badge available">Disponible</span>
         </a>
         
-        <a href="{{ path('app_game4') }}" class="game-card inactive">
-            <div class="icon">🎪</div>
+        <a href="{{ path('app_game4') }}" class="game-card active">
+            <div class="icon">🪢</div>
             <h3>Juego 4</h3>
-            <p>Próximamente</p>
-            <span class="status-badge coming-soon">Próximamente</span>
+            <p>Ahorcado</p>
+            <span class="status-badge available">Disponible</span>
         </a>
+
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_admin') }}" class="game-card active">
+            <div class="icon">🛠️</div>
+            <h3>Panel Admin</h3>
+            <p>Gestionar usuarios</p>
+            <span class="status-badge available">Solo Admin</span>
+        </a>
+        {% endif %}
     </div>
     
     <div class="logout-section">

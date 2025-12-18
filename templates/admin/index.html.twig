@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+    .top-nav {
+        margin: 10px 0 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .nav-btn {
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .nav-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25); background: rgba(255, 255, 255, 0.22); }
+    .nav-btn.active-nav { background: #ffffff; color: #2c5364; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25); }
+    .nav-btn.logout { background: #e74c3c; border-color: rgba(255,255,255,0.25); }
+    .nav-btn.logout:hover { background: #c0392b; }
+
+    .panel {
+        background: #fff;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        width: 100%;
+        max-width: 1100px;
+    }
+    h1 { color: #2c5364; margin-bottom: 5px; }
+    .subtitle { color: #666; margin-bottom: 20px; }
+
+    .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: #f8f9fa; border-radius: 14px; padding: 18px; border: 1px solid #e9ecef; }
+    .card h3 { margin-top: 0; color: #2c5364; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e9ecef; }
+    th { background: #eef2f4; color: #2c5364; }
+    tr:hover td { background: #f6f8fa; }
+    .tag { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; }
+    .tag.admin { background: #ffd166; color: #5c3d00; }
+    .tag.user { background: #d4edda; color: #155724; }
+    .tag.off { background: #f8d7da; color: #721c24; }
+
+    .btn { border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+    .btn.danger { background: #e74c3c; color: #fff; }
+    .btn.primary { background: #2c5364; color: #fff; }
+    .btn.danger:hover, .btn.primary:hover { opacity: 0.9; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    input[type="text"], input[type="email"], input[type="password"] { padding: 10px; border-radius: 10px; border: 1px solid #ced4da; }
+    label { font-weight: 600; color: #2c5364; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .alert { padding: 12px 14px; border-radius: 10px; margin-bottom: 12px; font-weight: 600; }
+    .alert.error { background: #f8d7da; color: #721c24; }
+    .alert.success { background: #d4edda; color: #155724; }
+</style>
+
+<div class="top-nav">
+    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game1' %} active-nav{% endif %}" href="{{ path('app_game1') }}">Juego 1</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game2' %} active-nav{% endif %}" href="{{ path('app_game2') }}">Juego 2</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game3' %} active-nav{% endif %}" href="{{ path('app_game3') }}">Juego 3</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game4' %} active-nav{% endif %}" href="{{ path('app_game4') }}">Juego 4</a>
+    <a class="nav-btn active-nav" href="{{ path('app_admin') }}">Panel Admin</a>
+    <a class="nav-btn logout" href="{{ path('app_logout') }}">Cerrar sesión</a>
+</div>
+
+<div class="panel">
+    <h1>Panel de Administración</h1>
+    <p class="subtitle">Gestiona usuarios y accesos</p>
+
+    {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+    {% if success %}<div class="alert success">{{ success }}</div>{% endif %}
+
+    <div class="grid">
+        <div class="card">
+            <h3>Usuarios</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Estado</th>
+                        <th>Registro</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.nombre }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if 'ROLE_ADMIN' in user.roles %}
+                                <span class="tag admin">Admin</span>
+                            {% else %}
+                                <span class="tag user">Usuario</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.estado %}
+                                <span class="tag user">Activo</span>
+                            {% else %}
+                                <span class="tag off">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.fechaRegistro ? user.fechaRegistro|date('Y-m-d H:i') : '' }}</td>
+                        <td>
+                            {% if app.user and user.id != app.user.id %}
+                            <form method="post" style="display:inline" onsubmit="return confirm('¿Eliminar usuario?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('admin_users') }}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <button class="btn danger" type="submit">Eliminar</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6">Sin usuarios</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Crear usuario</h3>
+            <form method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('admin_users') }}">
+                <input type="hidden" name="action" value="create">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" name="password" minlength="4" required>
+                    </div>
+                    <div class="form-group" style="align-items:center;">
+                        <label><input type="checkbox" name="is_admin" value="1"> Es administrador</label>
+                    </div>
+                </div>
+                <button class="btn primary" type="submit">Crear</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

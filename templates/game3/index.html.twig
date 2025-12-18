@@ -1,20 +1,315 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello Game3Controller!{% endblock %}
+{% block title %}Tres en Raya{% endblock %}
 
 {% block body %}
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .top-nav {
+        margin: 10px 0 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .nav-btn {
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    .nav-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 0.22);
+    }
+
+    .nav-btn.active-nav {
+        background: #ffffff;
+        color: #ff5e62;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .nav-btn.logout {
+        background: #e74c3c;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .nav-btn.logout:hover {
+        background: #c0392b;
+    }
+    .game-container {
+        background: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        width: 100%;
+        max-width: 750px;
+        text-align: center;
+    }
+    h1 {
+        color: #ff5e62;
+        margin-bottom: 10px;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    .subtitle { color: #666; margin-bottom: 25px; }
+    .status-bar {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .status-box {
+        background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        min-width: 160px;
+        box-shadow: 0 6px 16px rgba(255,94,98,0.35);
+    }
+    .status-box h3 { font-size: 0.9em; opacity: 0.9; margin-bottom: 6px; }
+    .status-box p { font-size: 1.6em; font-weight: bold; }
+    .board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 0 auto 25px auto;
+        width: 100%;
+        max-width: 420px;
+    }
+    .cell {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background: #f7f7f9;
+        border-radius: 15px;
+        border: 3px solid #ff9966;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5em;
+        font-weight: bold;
+        color: #ff5e62;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+        user-select: none;
+    }
+    .cell:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(255,94,98,0.25); }
+    .cell.taken { cursor: not-allowed; color: #444; }
+    .cell.win { background: #e8fff2; border-color: #2ecc71; color: #27ae60; box-shadow: 0 8px 20px rgba(46,204,113,0.35); }
+    .controls { margin-bottom: 15px; }
+    .btn {
+        background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+        color: #fff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 1.05em;
+        cursor: pointer;
+        margin: 5px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: bold;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255,94,98,0.35); }
+    .btn:active { transform: translateY(0); }
+    .btn.secondary {
+        background: #6c757d;
+    }
+    .message { font-size: 1.3em; color: #ff5e62; margin-bottom: 20px; min-height: 28px; }
+    .instructions {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 18px;
+        text-align: left;
+    }
+    .instructions h3 { color: #ff5e62; margin-bottom: 10px; }
+    .instructions ul { color: #555; list-style-position: inside; }
+    .instructions li { margin: 6px 0; }
 </style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/xampp/htdocs/PlataformaJuegos/src/Controller/Game3Controller.php</code></li>
-        <li>Your template at <code>C:/xampp/htdocs/PlataformaJuegos/templates/game3/index.html.twig</code></li>
-    </ul>
+<div class="top-nav">
+    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game1' %} active-nav{% endif %}" href="{{ path('app_game1') }}">Juego 1</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game2' %} active-nav{% endif %}" href="{{ path('app_game2') }}">Juego 2</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game3' %} active-nav{% endif %}" href="{{ path('app_game3') }}">Juego 3</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game4' %} active-nav{% endif %}" href="{{ path('app_game4') }}">Juego 4</a>
+    {% if is_granted('ROLE_ADMIN') %}
+    <a class="nav-btn" href="{{ path('app_admin') }}">Admin</a>
+    {% endif %}
+    <a class="nav-btn logout" href="{{ path('app_logout') }}">Cerrar sesión</a>
 </div>
+
+<div class="game-container">
+    <h1>❌⭕ Tres en Raya</h1>
+    <p class="subtitle">Modo 2 jugadores en el mismo dispositivo</p>
+
+    <div class="status-bar">
+        <div class="status-box">
+            <h3>Turno</h3>
+            <p id="turn">Jugador X</p>
+        </div>
+        <div class="status-box">
+            <h3>Puntaje X</h3>
+            <p id="scoreX">0</p>
+        </div>
+        <div class="status-box">
+            <h3>Puntaje O</h3>
+            <p id="scoreO">0</p>
+        </div>
+        <div class="status-box">
+            <h3>Empates</h3>
+            <p id="draws">0</p>
+        </div>
+    </div>
+
+    <div class="message" id="message">Empieza X</div>
+
+    <div class="board" id="board">
+        {% for i in 0..8 %}
+            <div class="cell" data-index="{{ i }}"></div>
+        {% endfor %}
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="restartRound()">Nueva Ronda</button>
+        <button class="btn secondary" onclick="resetScores()">Reiniciar Puntuaciones</button>
+    </div>
+
+    <div class="instructions">
+        <h3>📖 Instrucciones</h3>
+        <ul>
+            <li>Dos jugadores se alternan turnos en el mismo dispositivo.</li>
+            <li>X siempre empieza la primera ronda; en las siguientes, empieza el perdedor (o X si fue empate).</li>
+            <li>Haz clic en una casilla vacía para colocar tu marca.</li>
+            <li>Gana quien haga línea de 3 (horizontal, vertical o diagonal).</li>
+            <li>La puntuación se acumula; usa “Reiniciar Puntuaciones” para comenzar desde cero.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+// Evitar que flechas/espacio hagan scroll en la página
+document.addEventListener('keydown', (e) => {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "Spacebar"].includes(e.key)) {
+        e.preventDefault();
+    }
+});
+
+const boardEl = document.getElementById('board');
+const messageEl = document.getElementById('message');
+const turnEl = document.getElementById('turn');
+const scoreXEl = document.getElementById('scoreX');
+const scoreOEl = document.getElementById('scoreO');
+const drawsEl = document.getElementById('draws');
+
+let board = Array(9).fill('');
+let currentPlayer = 'X';
+let scores = { X: 0, O: 0, D: 0 };
+let gameOver = false;
+let lastWinner = null;
+
+const winningCombos = [
+    [0,1,2], [3,4,5], [6,7,8], // filas
+    [0,3,6], [1,4,7], [2,5,8], // columnas
+    [0,4,8], [2,4,6]           // diagonales
+];
+
+function renderBoard() {
+    boardEl.querySelectorAll('.cell').forEach((cell, idx) => {
+        cell.textContent = board[idx];
+        cell.classList.remove('taken', 'win');
+        if (board[idx]) {
+            cell.classList.add('taken');
+        }
+    });
+}
+
+function updateStatus(text) {
+    messageEl.textContent = text;
+    turnEl.textContent = `Jugador ${currentPlayer}`;
+}
+
+function handleClick(e) {
+    const cell = e.target;
+    const idx = Number(cell.dataset.index);
+    if (gameOver || board[idx]) return;
+
+    board[idx] = currentPlayer;
+    renderBoard();
+
+    const winLine = checkWin();
+    if (winLine) {
+        winLine.forEach(i => boardEl.children[i].classList.add('win'));
+        scores[currentPlayer]++;
+        scoreXEl.textContent = scores.X;
+        scoreOEl.textContent = scores.O;
+        messageEl.textContent = `¡Jugador ${currentPlayer} gana!`;
+        gameOver = true;
+        lastWinner = currentPlayer;
+        return;
+    }
+
+    if (board.every(cell => cell)) {
+        scores.D++;
+        drawsEl.textContent = scores.D;
+        messageEl.textContent = 'Empate';
+        gameOver = true;
+        lastWinner = null;
+        return;
+    }
+
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    updateStatus(`Turno de ${currentPlayer}`);
+}
+
+function checkWin() {
+    for (const combo of winningCombos) {
+        const [a, b, c] = combo;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return combo;
+        }
+    }
+    return null;
+}
+
+function restartRound() {
+    board = Array(9).fill('');
+    gameOver = false;
+    // El perdedor empieza; si empate, empieza X
+    if (lastWinner === 'X') currentPlayer = 'O';
+    else if (lastWinner === 'O') currentPlayer = 'X';
+    else currentPlayer = 'X';
+    renderBoard();
+    updateStatus(`Turno de ${currentPlayer}`);
+}
+
+function resetScores() {
+    scores = { X: 0, O: 0, D: 0 };
+    scoreXEl.textContent = scores.X;
+    scoreOEl.textContent = scores.O;
+    drawsEl.textContent = scores.D;
+    lastWinner = null;
+    restartRound();
+}
+
+boardEl.addEventListener('click', handleClick);
+renderBoard();
+updateStatus('Empieza X');
+</script>
 {% endblock %}
