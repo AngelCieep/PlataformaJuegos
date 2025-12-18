@@ -297,6 +297,7 @@
         <p>Score: <span id="finalScore">0</span></p>
         <p>Level: <span id="finalLevel">1</span></p>
         <p>Lines: <span id="finalLines">0</span></p>
+        <p id="saveStatus" style="color: #667eea; font-size: 16px; margin: 10px 0;">Guardando puntuación...</p>
         <button class="restart-btn" onclick="location.reload()">Play Again</button>
     </div>
 </div>
@@ -609,6 +610,64 @@
         document.getElementById('finalLevel').textContent = level;
         document.getElementById('finalLines').textContent = lines;
         document.getElementById('gameOverOverlay').style.display = 'flex';
+        
+        // Guardar la partida en la base de datos
+        saveGameScore();
+    }
+
+    function saveGameScore() {
+        {% if user %}
+        const data = {
+            api_key: 'ABCDEFGHIJK1234567890',
+            token_usuario: '{{ user.email }}',
+            token_juego: 'TETRIS_TOKEN_001',
+            puntos: score.toString()
+        };
+
+        const saveStatus = document.getElementById('saveStatus');
+        
+        fetch('{{ path("api_juego_guardar") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en el servidor: ' + response.status);
+            }
+            return response.text();
+        })
+        .then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Respuesta del servidor:', text);
+                throw new Error('Respuesta inválida del servidor');
+            }
+        })
+        .then(result => {
+            console.log(result);
+            if (result.success) {
+                saveStatus.textContent = '✓ Puntuación guardada correctamente';
+                saveStatus.style.color = '#27ae60';
+            } else {
+                saveStatus.textContent = '✗ Error al guardar: ' + result.message;
+                saveStatus.style.color = '#e74c3c';
+            }
+        })
+        .catch(error => {
+            console.error('Error completo:', error);
+            saveStatus.textContent = '✗ Error al guardar: ' + error.message;
+            saveStatus.style.color = '#e74c3c';
+        });
+        {% else %}
+        const saveStatus = document.getElementById('saveStatus');
+        saveStatus.textContent = '⚠ Inicia sesión para guardar tu puntuación';
+        saveStatus.style.color = '#f39c12';
+        {% endif %}
     }
 
     function togglePause() {

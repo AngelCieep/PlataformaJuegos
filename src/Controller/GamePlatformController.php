@@ -413,21 +413,17 @@ final class GamePlatformController extends AbstractController
             ], 404);
         }
 
-        // Como no usamos JWT, buscamos al usuario por su token almacenado
-        // El token se almacenó como password hash, así que buscaremos al primer usuario
-        // Para una implementación real, deberías almacenar los tokens de sesión en una tabla separada
-        // Por ahora, usaremos el primer usuario disponible como ejemplo
-        $usuarios = $userRepository->findAll();
-        if (empty($usuarios)) {
+        // Buscar usuario por email enviado en token_usuario
+        $userEmail = $data['token_usuario'];
+        $usuario = $userRepository->findOneBy(['email' => $userEmail]);
+        
+        if (!$usuario) {
             return $this->json([
                 'success' => false,
                 'message' => 'Error, usuario no encontrado',
-                'data' => 'No se pudo identificar al usuario',
+                'data' => 'No se pudo identificar al usuario con ese email',
             ], 404);
         }
-        
-        // Tomamos el primer usuario (en producción esto debería buscar por token)
-        $usuario = $usuarios[0];
 
         // Crear una nueva partida
         $partida = new Partida();
