@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection; // AGREGAR ESTO
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -27,19 +27,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column]
-    private ?string $password = null;
-
     #[ORM\Column(length: 30)]
     private ?string $nombre = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    /**
+     * @var string The hashed token (used as password)
+     */
+    #[ORM\Column(length: 255)]
     private ?string $token = null;
 
-    // AGREGAR ESTAS 3 PROPIEDADES NUEVAS:
     #[ORM\Column]
     private ?\DateTimeImmutable $fechaRegistro = null;
 
@@ -49,10 +45,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Partida::class)]
     private Collection $partidas;
 
-    // AGREGAR ESTE CONSTRUCTOR (si no existe) o modificar si existe:
     public function __construct()
     {
-        // Si ya existe constructor, solo agrega estas líneas
         $this->fechaRegistro = new \DateTimeImmutable();
         $this->partidas = new ArrayCollection();
         $this->estado = true;
@@ -112,23 +106,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getPassword(): ?string
     {
-        return $this->password;
+        return $this->token;
     }
 
     public function setPassword(string $password): static
     {
-        $this->password = $password;
+        $this->token = $password;
 
         return $this;
     }
 
     /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
+     * Ensure the session doesn't contain actual token hashes by CRC32C-hashing them, as supported since Symfony 7.3.
      */
     public function __serialize(): array
     {
         $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
+        $data["\0".self::class."\0token"] = hash('crc32c', $this->token);
 
         return $data;
     }
@@ -156,14 +150,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->token;
     }
 
-    public function setToken(?string $token): static
+    public function setToken(string $token): static
     {
         $this->token = $token;
 
         return $this;
     }
-
-    // AGREGAR ESTOS 7 MÉTODOS NUEVOS AL FINAL:
 
     public function getFechaRegistro(): ?\DateTimeImmutable
     {

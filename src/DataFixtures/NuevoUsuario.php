@@ -26,18 +26,16 @@ class NuevoUsuario extends Fixture implements FixtureGroupInterface
     {
         $email = 'test@email';
         $nombre = 'Txus';
-        $plainPassword = '12345678';
+        $password = '12345678';
         $user = new User();
         $user->setEmail($email);
         $user->setNombre($nombre);
         $user->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
-        // Encriptación de la contraseña
-        $hashed = $this->passwordHasher->hashPassword($user, $plainPassword);
-        $user->setPassword($hashed);
-        $user->setToken(bin2hex(random_bytes(32)));
+        // Encriptación del token
+        $hashed = $this->passwordHasher->hashPassword($user, $password);
+        $user->setToken($hashed);
         // Guarda el registro en la base de datos.
         $manager->persist($user);
         $manager->flush();
-
     }
 }
