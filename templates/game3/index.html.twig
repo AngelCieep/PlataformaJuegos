@@ -149,6 +149,8 @@
     <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game2' %} active-nav{% endif %}" href="{{ path('app_game2') }}">Juego 2</a>
     <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game3' %} active-nav{% endif %}" href="{{ path('app_game3') }}">Juego 3</a>
     <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game4' %} active-nav{% endif %}" href="{{ path('app_game4') }}">Juego 4</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game5' %} active-nav{% endif %}" href="{{ path('app_game5') }}">Juego 5</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game6' %} active-nav{% endif %}" href="{{ path('app_game6') }}">Juego 6</a>
     {% if is_granted('ROLE_ADMIN') %}
     <a class="nav-btn" href="{{ path('app_admin') }}">Admin</a>
     {% endif %}

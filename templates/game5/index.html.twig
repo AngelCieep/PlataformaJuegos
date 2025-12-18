@@ -1,0 +1,234 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Memory Game{% endblock %}
+
+{% block body %}
+<style>
+    body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:20px 20px 40px;}
+    .top-nav {
+        margin: 10px 0 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: center;
+        max-width: 980px;
+    }
+
+    .nav-btn {
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    .nav-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 0.22);
+    }
+
+    .nav-btn.active-nav {
+        background: #ffffff;
+        color: #764ba2;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .nav-btn.logout {
+        background: #e74c3c;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .nav-btn.logout:hover {
+        background: #c0392b;
+    }
+
+    .game-container{background:white;padding:30px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;max-width:800px;width:100%}
+    h1{color:#667eea;margin-bottom:10px}
+    .stats{display:flex;gap:15px;justify-content:center;margin-bottom:15px}
+    .info-box{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:10px 16px;border-radius:8px;min-width:120px}
+    .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 auto;max-width:520px}
+    .card {
+        width: 100%;
+        height: 110px;
+        border-radius: 8px;
+        cursor: pointer;
+        user-select: none;
+        perspective: 800px;
+    }
+
+    .card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform .45s;
+    }
+
+    .card.flipped .card-inner {
+        transform: rotateY(180deg);
+    }
+
+    .card .front,
+    .card .back {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    /* face-down */
+    .card .front {
+        background: #f5f7fa;
+        transform: rotateY(0deg);
+    }
+
+    /* face-up (emoji) */
+    .card .back {
+        background: #fff;
+        transform: rotateY(180deg);
+        font-size: 2.2rem;
+    }
+
+    .card.matched {
+        opacity: 0.85;
+        cursor: default;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    .controls{margin-top:18px}
+    .btn{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:10px 18px;border-radius:20px;border:none;font-weight:bold}
+
+    .message{margin-top:12px;color:#333}
+</style>
+
+<div class="top-nav">
+    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game1' %} active-nav{% endif %}" href="{{ path('app_game1') }}">Juego 1</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game2' %} active-nav{% endif %}" href="{{ path('app_game2') }}">Juego 2</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game3' %} active-nav{% endif %}" href="{{ path('app_game3') }}">Juego 3</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game4' %} active-nav{% endif %}" href="{{ path('app_game4') }}">Juego 4</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game5' %} active-nav{% endif %}" href="{{ path('app_game5') }}">Juego 5</a>
+    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game6' %} active-nav{% endif %}" href="{{ path('app_game6') }}">Juego 6</a>
+    {% if is_granted('ROLE_ADMIN') %}
+    <a class="nav-btn" href="{{ path('app_admin') }}">Admin</a>
+    {% endif %}
+    <a class="nav-btn logout" href="{{ path('app_logout') }}">Cerrar sesión</a>
+</div>
+
+<div class="game-container">
+    <h1>🧠 Memory</h1>
+    <div class="stats">
+        <div class="info-box">Movimientos: <strong id="moves">0</strong></div>
+        <div class="info-box">Parejas: <strong id="matches">0</strong></div>
+        <div class="info-box">Mejor: <strong id="best">-</strong></div>
+    </div>
+
+    <div class="board" id="board" aria-live="polite"></div>
+
+    <div class="controls">
+        <button class="btn" id="restartBtn">Reiniciar</button>
+    </div>
+
+    <p class="message" id="message"></p>
+</div>
+
+<script>
+(function(){
+    const emojis = ['🍎','🍌','🍇','🍒','🍓','🍍','🥝','🍉']; // 8 pairs -> 16
+    const board = document.getElementById('board');
+    const movesEl = document.getElementById('moves');
+    const matchesEl = document.getElementById('matches');
+    const bestEl = document.getElementById('best');
+    const message = document.getElementById('message');
+    const restartBtn = document.getElementById('restartBtn');
+
+    let deck = [];
+    let first = null;
+    let second = null;
+    let lock = false;
+    let moves = 0;
+    let matches = 0;
+
+    const bestKey = 'memory_best_moves';
+    const best = localStorage.getItem(bestKey);
+    if(best) bestEl.textContent = best;
+
+    function shuffle(array){
+        for(let i = array.length -1; i>0; i--){
+            const j = Math.floor(Math.random()*(i+1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function build(){
+        deck = [...emojis, ...emojis];
+        shuffle(deck);
+        board.innerHTML='';
+        deck.forEach((val,idx)=>{
+            const card = document.createElement('div');
+            card.className='card';
+            card.dataset.value = val;
+            card.innerHTML = `<div class="card-inner"><div class="front"></div><div class="back">${val}</div></div>`;
+            card.addEventListener('click', ()=>onCardClick(card));
+            board.appendChild(card);
+        });
+        moves = 0; matches = 0; first = null; second=null; lock=false;
+        movesEl.textContent = moves; matchesEl.textContent = matches; message.textContent='';
+    }
+
+    function onCardClick(card){
+        if(lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+        card.classList.add('flipped');
+        if(!first){ first = card; return; }
+        second = card;
+        lock = true;
+        moves++;
+        movesEl.textContent = moves;
+        checkMatch();
+    }
+
+    function checkMatch(){
+        if(first.dataset.value === second.dataset.value){
+            first.classList.add('matched');
+            second.classList.add('matched');
+            matches++;
+            matchesEl.textContent = matches;
+            resetPair();
+            if(matches === emojis.length){
+                finish();
+            }
+        } else {
+            setTimeout(()=>{
+                first.classList.remove('flipped');
+                second.classList.remove('flipped');
+                resetPair();
+            },700);
+        }
+    }
+
+    function resetPair(){ first=null; second=null; lock=false; }
+
+    function finish(){
+        message.textContent = `¡Completado en ${moves} movimientos!`;
+        const currentBest = localStorage.getItem(bestKey);
+        if(!currentBest || moves < currentBest){
+            localStorage.setItem(bestKey, moves);
+            bestEl.textContent = moves;
+        }
+    }
+
+    restartBtn.addEventListener('click', build);
+
+    build();
+})();
+</script>
+
+{% endblock %}
