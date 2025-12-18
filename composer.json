@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.5",
+        "firebase/php-jwt": "^7.0",
         "symfony/apache-pack": "*",
         "symfony/asset-mapper": "7.4.*",
         "symfony/console": "7.4.*",
