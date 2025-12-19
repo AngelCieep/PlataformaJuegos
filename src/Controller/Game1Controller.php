@@ -11,8 +11,11 @@ final class Game1Controller extends AbstractController
     #[Route('/game1', name: 'app_game1')]
     public function index(): Response
     {
+        $user = $this->getUser();
+
         return $this->render('game1/index.html.twig', [
             'controller_name' => 'Game1Controller',
+            'user' => $user,
             'api_key' => 'ABCDEFGHIJK1234567890',
             'game_token' => 'SNAKE_GAME_TOKEN_001',
         ]);

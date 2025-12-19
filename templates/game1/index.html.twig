@@ -218,6 +218,11 @@
         display: none;
         z-index: 999;
     }
+
+    /* Leaderboard styles (match Tetris) */
+    .leaderboard ol { margin: 0; padding-left: 18px; }
+    .leaderboard li { padding: 6px 0; border-bottom: 1px solid #eee; color: #333; font-weight:600; }
+    .leaderboard li span.points { float: right; color: #667eea; font-weight:700; }
     
     .overlay.show {
         display: block;
@@ -281,6 +286,18 @@
             <li>Cada 5 puntos subes de nivel y el juego se acelera</li>
             <li>Presiona ESPACIO para pausar/reanudar</li>
         </ul>
+    </div>
+
+    <div class="info-box leaderboard" style="margin-top:20px; max-width:650px; width:100%;">
+        <h3>Top 10</h3>
+        {% if user %}
+        <ol id="leaderboardList" style="padding-left:18px; margin:0;">
+            <li>Cargando...</li>
+        </ol>
+        <p id="leaderboardStatus" style="font-size:12px;color:#888;margin-top:8px;"></p>
+        {% else %}
+        <p style="color:#f39c12; font-weight:600;">⚠ Inicia sesión para ver el ranking</p>
+        {% endif %}
     </div>
 </div>
 
@@ -569,10 +586,10 @@ function restartGame() {
 async function saveGame(puntos) {
     const saveStatusElement = document.getElementById('saveStatus');
     
-    {% if app.user %}
+    {% if user %}
     const apiKey = '{{ api_key }}';
     const gameToken = '{{ game_token }}';
-    const userEmail = '{{ app.user.email }}';
+    const userEmail = '{{ user.email }}';
     
     console.log('Guardando partida...', {
         puntos: puntos,
@@ -623,9 +640,9 @@ async function saveGame(puntos) {
             saveStatusElement.textContent = '✅ ¡Partida guardada correctamente!';
             saveStatusElement.style.color = '#4CAF50';
             
-            // Mostrar top 10 si está disponible
-            if (result.data && result.data.top10) {
-                console.log('Top 10:', result.data.top10);
+            // Actualizar el top10 exactamente igual que en Tetris
+            if (typeof fetchLeaderboard === 'function') {
+                try { fetchLeaderboard(); } catch (e) { console.warn('No se pudo refrescar el Top10:', e); }
             }
         } else {
             console.error('❌ Error al guardar partida:', result.message);
@@ -689,5 +706,56 @@ document.addEventListener('keydown', (e) => {
 clearCanvas();
 drawSnake();
 drawFood();
+
+{% if user %}
+    // Fetch leaderboard for Snake
+    function fetchLeaderboard() {
+        const data = {
+            api_key: '{{ api_key }}',
+            token_usuario: '{{ user.email }}',
+            token_juego: '{{ game_token }}'
+        };
+
+        const listEl = document.getElementById('leaderboardList');
+        const statusEl = document.getElementById('leaderboardStatus');
+        if (!listEl || !statusEl) return;
+
+        statusEl.textContent = 'Cargando ranking...';
+
+        fetch('{{ path("api_juego") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error en el servidor: ' + response.status);
+            return response.json();
+        })
+        .then(result => {
+            if (result.success && result.data && result.data['Listado jugadores']) {
+                const jugadores = result.data['Listado jugadores'];
+                listEl.innerHTML = '';
+                if (jugadores.length === 0) {
+                    listEl.innerHTML = '<li>No hay resultados</li>';
+                } else {
+                    jugadores.forEach(j => {
+                        const li = document.createElement('li');
+                        li.innerHTML = '<span class="player">' + j.jugador + '</span>' + '<span class="points">' + j.Puntos + '</span>';
+                        listEl.appendChild(li);
+                    });
+                }
+                statusEl.textContent = '';
+            } else {
+                statusEl.textContent = 'No hay datos disponibles';
+            }
+        })
+        .catch(err => {
+            console.error('Error al cargar ranking:', err);
+            statusEl.textContent = 'Error al cargar ranking';
+        });
+    }
+
+    fetchLeaderboard();
+{% endif %}
 </script>
 {% endblock %}
