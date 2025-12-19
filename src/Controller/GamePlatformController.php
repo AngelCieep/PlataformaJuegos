@@ -277,6 +277,7 @@ final class GamePlatformController extends AbstractController
         AplicacionRepository $aplicacionRepository,
         JuegoRepository $juegoRepository,
         PartidaRepository $partidaRepository,
+        UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): JsonResponse
     {
@@ -302,14 +303,16 @@ final class GamePlatformController extends AbstractController
             ], 401);
         }
 
-        // Validar que se enviaron los tokens
-        if (!isset($data['token_usuario']) || !isset($data['token_juego'])) {
+        // Validar que se envió el token del juego (token_usuario es opcional para ver ranking público)
+        if (!isset($data['token_juego'])) {
             return $this->json([
                 'success' => false,
-                'message' => 'Error, faltan tokens requeridos',
-                'data' => 'Se requieren token_usuario y token_juego',
+                'message' => 'Error, faltan datos requeridos',
+                'data' => 'Se requiere token_juego',
             ], 400);
         }
+
+        $tokenUsuarioProvided = isset($data['token_usuario']) && !empty($data['token_usuario']);
 
         // Buscar el juego por token
         $juego = $juegoRepository->findOneBy(['tokenJuego' => $data['token_juego']]);
@@ -348,7 +351,25 @@ final class GamePlatformController extends AbstractController
                 'Puntos' => (string)$jugador['Puntos']
             ];
         }
+
+        // Si se proporcionó token_usuario, obtener los puntos del usuario
         $puntosUsuario = "0";
+        if ($tokenUsuarioProvided) {
+            $usuario = $userRepository->findOneBy(['email' => $data['token_usuario']]);
+            if ($usuario) {
+                $sqlUser = '
+                    SELECT MAX(p.puntos) as PuntosUser
+                    FROM partida p
+                    WHERE p.juego_id = :juegoId AND p.usuario_id = :userId
+                ';
+                $stmtUser = $connection->prepare($sqlUser);
+                $stmtUser->bindValue('juegoId', $juego->getId());
+                $stmtUser->bindValue('userId', $usuario->getId());
+                $resUser = $stmtUser->executeQuery();
+                $row = $resUser->fetchAssociative();
+                $puntosUsuario = $row && $row['PuntosUser'] !== null ? (string)$row['PuntosUser'] : "0";
+            }
+        }
 
         // Respuesta exitosa
         return $this->json([

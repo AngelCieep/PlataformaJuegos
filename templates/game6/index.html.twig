@@ -90,6 +90,14 @@
     </div>
 
     <p id="message" style="margin-top:10px;color:#333"></p>
+
+    <div style="margin-top:18px; max-width:600px; margin-left:auto; margin-right:auto; text-align:left;">
+        <h3 style="color:#667eea;margin-bottom:8px;">Top 10 (público)</h3>
+        <ol id="simonLeaderboard" style="background:#fff;padding:12px;border-radius:8px; list-style-position:inside;">
+            <li>Cargando...</li>
+        </ol>
+        <p id="simonLeaderboardStatus" style="font-size:12px;color:#888;margin-top:8px;"></p>
+    </div>
 </div>
 
 <script>
@@ -152,10 +160,14 @@
         const i = player.length - 1;
         if(player[i] !== seq[i]){
             message.textContent = '¡Incorrecto!';
+            const achieved = seq.length - 1;
             if(seq.length > best){
-                localStorage.setItem(bestKey, seq.length-1);
-                bestEl.textContent = seq.length-1;
+                localStorage.setItem(bestKey, achieved);
+                bestEl.textContent = achieved;
             }
+            // Enviar resultado al servidor si hay usuario (guardar nivel alcanzado)
+            submitSimonScore(achieved);
+
             seq = []; player = [];
             levelEl.textContent = 0;
             return;
@@ -174,6 +186,75 @@
 
     // dim pads initially
     pads.forEach(p=>p.classList.add('dim'));
+
+    // --- Leaderboard / persistence ---
+    function fetchSimonLeaderboard() {
+        const listEl = document.getElementById('simonLeaderboard');
+        const statusEl = document.getElementById('simonLeaderboardStatus');
+        if (!listEl || !statusEl) return;
+        statusEl.textContent = 'Cargando ranking...';
+
+        const data = {
+            api_key: 'ABCDEFGHIJK1234567890',
+            token_juego: 'SIMON_GAME_TOKEN_007'
+        };
+
+        fetch('{{ path("api_juego") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success && result.data && result.data['Listado jugadores']) {
+                const jugadores = result.data['Listado jugadores'];
+                listEl.innerHTML = '';
+                if (jugadores.length === 0) listEl.innerHTML = '<li>No hay resultados</li>';
+                else jugadores.forEach(j => {
+                    const li = document.createElement('li');
+                    li.textContent = `${j.jugador} — ${j.Puntos}`;
+                    listEl.appendChild(li);
+                });
+                statusEl.textContent = '';
+            } else {
+                statusEl.textContent = 'No hay datos disponibles';
+            }
+        })
+        .catch(err => {
+            console.error('Error cargando ranking Simon:', err);
+            statusEl.textContent = 'Error al cargar ranking';
+        });
+    }
+
+    // Submit a Simon score to the API (only if user is logged in)
+    function submitSimonScore(level) {
+        {% if app.user %}
+        const payload = {
+            api_key: 'ABCDEFGHIJK1234567890',
+            token_usuario: '{{ app.user.email }}',
+            token_juego: 'SIMON_GAME_TOKEN_007',
+            puntos: String(level)
+        };
+
+        fetch('{{ path("api_juego_guardar") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(res => {
+            console.log('Simon score saved', res);
+            if (res.success) fetchSimonLeaderboard();
+        })
+        .catch(err => console.error('Error saving Simon score:', err));
+        {% else %}
+        // No-op when not logged in
+        console.debug('No user logged in, Simon score not submitted');
+        {% endif %}
+    }
+
+    // Call fetch on load
+    fetchSimonLeaderboard();
 })();
 </script>
 

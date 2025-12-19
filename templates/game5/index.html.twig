@@ -131,10 +131,20 @@
         <div class="info-box">Mejor: <strong id="best">-</strong></div>
     </div>
 
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+        <label style="color:#333;font-weight:600;">Modo 2 jugadores:</label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="twoPlayerToggle"> Activado</label>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+            <div class="info-box">Rojo: <strong id="scoreRed">0</strong></div>
+            <div class="info-box">Azul: <strong id="scoreBlue">0</strong></div>
+        </div>
+    </div>
+
     <div class="board" id="board" aria-live="polite"></div>
 
     <div class="controls">
         <button class="btn" id="restartBtn">Reiniciar</button>
+        <button class="btn secondary" id="resetScoreBtn">Reiniciar Marcador</button>
     </div>
 
     <p class="message" id="message"></p>
@@ -196,11 +206,34 @@
     }
 
     function checkMatch(){
+        const twoPlayer = document.getElementById('twoPlayerToggle') && document.getElementById('twoPlayerToggle').checked;
+        const scoreRedElLocal = document.getElementById('scoreRed');
+        const scoreBlueElLocal = document.getElementById('scoreBlue');
+
         if(first.dataset.value === second.dataset.value){
             first.classList.add('matched');
             second.classList.add('matched');
             matches++;
             matchesEl.textContent = matches;
+
+            if (twoPlayer) {
+                // Determine current player from message text (format: 'Turno: Red' or 'Turno: Blue')
+                let cur = 'Red';
+                if (message.textContent && message.textContent.includes('Turno:')) {
+                    cur = message.textContent.replace('Turno: ', '').trim();
+                }
+                if (cur === 'Red') {
+                    const prev = Number(scoreRedElLocal.textContent) || 0;
+                    scoreRedElLocal.textContent = prev + 1;
+                } else {
+                    const prev = Number(scoreBlueElLocal.textContent) || 0;
+                    scoreBlueElLocal.textContent = prev + 1;
+                }
+                // keep the same player's turn when they matched
+                currentPlayer = cur;
+                message.textContent = `Turno: ${cur}`;
+            }
+
             resetPair();
             if(matches === emojis.length){
                 finish();
@@ -209,6 +242,18 @@
             setTimeout(()=>{
                 first.classList.remove('flipped');
                 second.classList.remove('flipped');
+                // if two-player, switch turn
+                if (twoPlayer) {
+                    if (message.textContent && message.textContent.includes('Turno:')) {
+                        const cur = message.textContent.replace('Turno: ', '').trim();
+                        const next = cur === 'Red' ? 'Blue' : 'Red';
+                        currentPlayer = next;
+                        message.textContent = `Turno: ${next}`;
+                    } else {
+                        currentPlayer = 'Blue';
+                        message.textContent = 'Turno: Blue';
+                    }
+                }
                 resetPair();
             },700);
         }
@@ -226,6 +271,29 @@
     }
 
     restartBtn.addEventListener('click', build);
+
+    // Two-player controls
+    const twoPlayerToggle = document.getElementById('twoPlayerToggle');
+    const scoreRedEl = document.getElementById('scoreRed');
+    const scoreBlueEl = document.getElementById('scoreBlue');
+    const resetScoreBtn = document.getElementById('resetScoreBtn');
+
+    let twoPlayer = false;
+    let currentPlayer = 'Red';
+    let scoreRed = 0;
+    let scoreBlue = 0;
+
+    twoPlayerToggle.addEventListener('change', () => {
+        twoPlayer = twoPlayerToggle.checked;
+        message.textContent = twoPlayer ? `Turno: ${currentPlayer}` : '';
+    });
+
+    resetScoreBtn.addEventListener('click', () => {
+        scoreRed = 0;
+        scoreBlue = 0;
+        scoreRedEl.textContent = scoreRed;
+        scoreBlueEl.textContent = scoreBlue;
+    });
 
     build();
 })();

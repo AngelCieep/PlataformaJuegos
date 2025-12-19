@@ -157,6 +157,13 @@
         color: #555;
     }
 
+    /* Leaderboard */
+    .leaderboard ol { margin: 0; padding-left: 18px; }
+    .leaderboard li { padding: 6px 0; border-bottom: 1px solid #eee; color: #333; font-weight:600; }
+    .leaderboard li span.points { float: right; color: #667eea; font-weight:700; }
+    .leaderboard p#leaderboardStatus { clear:both; }
+    
+
     .controls strong {
         color: #764ba2;
         display: inline-block;
@@ -288,7 +295,18 @@
             <p><strong>C</strong> Hold/Swap</p>
             <p><strong>P</strong> Pause</p>
         </div>
-    </div>
+        <div class="info-box leaderboard">
+            <h3>Top 10</h3>
+            {% if user %}
+            <ol id="leaderboardList" style="padding-left:18px; margin:0;">
+                <li>Cargando...</li>
+            </ol>
+            <p id="leaderboardStatus" style="font-size:12px;color:#888;margin-top:8px;"></p>
+            {% else %}
+            <p style="color:#f39c12; font-weight:600;">⚠ Inicia sesión para ver el ranking</p>
+            {% endif %}
+        </div>
+    </div> 
 </div>
 
 <div class="game-over-overlay" id="gameOverOverlay">
@@ -620,7 +638,7 @@
         const data = {
             api_key: 'ABCDEFGHIJK1234567890',
             token_usuario: '{{ user.email }}',
-            token_juego: 'TETRIS_TOKEN_001',
+            token_juego: 'TETRIS_GAME_TOKEN_002',
             puntos: score.toString()
         };
 
@@ -653,6 +671,8 @@
             if (result.success) {
                 saveStatus.textContent = '✓ Puntuación guardada correctamente';
                 saveStatus.style.color = '#27ae60';
+                // Refrescar el ranking
+                if (typeof fetchLeaderboard === 'function') fetchLeaderboard();
             } else {
                 saveStatus.textContent = '✗ Error al guardar: ' + result.message;
                 saveStatus.style.color = '#e74c3c';
@@ -740,6 +760,56 @@
     initNextPieces();
     getNextPiece();
     updateDisplay();
+    {% if user %}
+    // Fetch the leaderboard for this game when a user is present
+    function fetchLeaderboard() {
+        const data = {
+            api_key: 'ABCDEFGHIJK1234567890',
+            token_usuario: '{{ user.email }}',
+            token_juego: 'TETRIS_GAME_TOKEN_002'
+        };
+
+        const listEl = document.getElementById('leaderboardList');
+        const statusEl = document.getElementById('leaderboardStatus');
+        if (!listEl || !statusEl) return;
+
+        statusEl.textContent = 'Cargando ranking...';
+
+        fetch('{{ path("api_juego") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error en el servidor: ' + response.status);
+            return response.json();
+        })
+        .then(result => {
+            if (result.success && result.data && result.data['Listado jugadores']) {
+                const jugadores = result.data['Listado jugadores'];
+                listEl.innerHTML = '';
+                if (jugadores.length === 0) {
+                    listEl.innerHTML = '<li>No hay resultados</li>';
+                } else {
+                    jugadores.forEach(j => {
+                        const li = document.createElement('li');
+                        li.innerHTML = '<span class="player">' + j.jugador + '</span>' + '<span class="points">' + j.Puntos + '</span>';
+                        listEl.appendChild(li);
+                    });
+                }
+                statusEl.textContent = '';
+            } else {
+                statusEl.textContent = 'No hay datos disponibles';
+            }
+        })
+        .catch(err => {
+            console.error('Error al cargar ranking:', err);
+            statusEl.textContent = 'Error al cargar ranking';
+        });
+    }
+
+    fetchLeaderboard();
+    {% endif %}
     gameLoop();
 </script>
 {% endblock %}
