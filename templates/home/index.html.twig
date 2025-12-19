@@ -209,6 +209,20 @@
             <span class="status-badge available">Disponible</span>
         </a>
 
+        <a href="{{ path('app_game5') }}" class="game-card active">
+            <div class="icon">🧠</div>
+            <h3>Juego 5</h3>
+            <p>Memory</p>
+            <span class="status-badge available">Disponible</span>
+        </a>
+
+        <a href="{{ path('app_game6') }}" class="game-card active">
+            <div class="icon">🔊</div>
+            <h3>Juego 6</h3>
+            <p>Simon dice</p>
+            <span class="status-badge available">Disponible</span>
+        </a>
+
         {% if is_granted('ROLE_ADMIN') %}
         <a href="{{ path('app_admin') }}" class="game-card active">
             <div class="icon">🛠️</div>
