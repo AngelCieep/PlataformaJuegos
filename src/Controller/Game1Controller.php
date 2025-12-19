@@ -13,6 +13,8 @@ final class Game1Controller extends AbstractController
     {
         return $this->render('game1/index.html.twig', [
             'controller_name' => 'Game1Controller',
+            'api_key' => 'ABCDEFGHIJK1234567890',
+            'game_token' => 'SNAKE_GAME_TOKEN_001',
         ]);
     }
 }

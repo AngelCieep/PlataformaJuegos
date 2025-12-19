@@ -83,6 +83,7 @@ class JuegoFixtures extends Fixture implements FixtureGroupInterface
         $juegoBreakout->setAplicacion($aplicacion);
         $manager->persist($juegoBreakout);
 
+<<<<<<< HEAD
         // Crear juego Simon (Game7) para ranking público
         $juegoSimon = new Juego();
         $juegoSimon->setNombre('Simon Dice');
@@ -92,6 +93,8 @@ class JuegoFixtures extends Fixture implements FixtureGroupInterface
         $juegoSimon->setAplicacion($aplicacion);
         $manager->persist($juegoSimon);
 
+=======
+>>>>>>> 362a14917ef8ed881fe83c5eee4f13e1b0540e69
         $manager->flush();
     }
 }
