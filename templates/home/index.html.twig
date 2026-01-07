@@ -1,240 +1,195 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
-{% block title %}Plataforma de Juegos{% endblock %}
+{% block title %}Bienvenido - Plataforma de Juegos{% endblock %}
 
-{% block body %}
+{% block page_content %}
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    .content-wrapper {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
+        min-height: calc(100vh - 56px);
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 20px;
+        padding: 40px 20px;
     }
     
-    .container {
+    .welcome-container {
         background: white;
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-width: 900px;
+        border-radius: 30px;
+        padding: 60px 40px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+        max-width: 1000px;
         width: 100%;
+        text-align: center;
     }
     
-    h1 {
+    .welcome-header {
+        margin-bottom: 50px;
+    }
+    
+    .welcome-header h1 {
         color: #667eea;
-        text-align: center;
+        font-size: 3.5em;
         margin-bottom: 15px;
-        font-size: 2.5em;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        font-weight: bold;
     }
     
-    .subtitle {
-        text-align: center;
+    .welcome-header .subtitle {
         color: #666;
-        margin-bottom: 40px;
-        font-size: 1.1em;
-    }
-    
-    .user-info {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 30px;
-        text-align: center;
-    }
-    
-    .user-info h2 {
         font-size: 1.3em;
         margin-bottom: 10px;
     }
     
-    .user-info p {
-        font-size: 1em;
-        opacity: 0.9;
-    }
-    
-    .games-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 25px;
-        margin-bottom: 30px;
-    }
-    
-    .game-card {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        border-radius: 15px;
-        padding: 30px;
-        text-align: center;
-        transition: transform 0.3s, box-shadow 0.3s;
-        cursor: pointer;
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-    
-    .game-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
-    }
-    
-    .game-card .icon {
-        font-size: 4em;
-        margin-bottom: 15px;
-    }
-    
-    .game-card h3 {
-        color: #667eea;
-        margin-bottom: 10px;
-        font-size: 1.5em;
-    }
-    
-    .game-card p {
-        color: #666;
-        font-size: 0.95em;
-    }
-    
-    .game-card.active {
+    .user-greeting {
+        display: inline-block;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+        font-weight: 600;
     }
     
-    .game-card.active h3,
-    .game-card.active p {
-        color: white;
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        margin-top: 40px;
     }
     
-    .game-card.inactive {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    
-    .game-card.inactive:hover {
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .logout-section {
-        text-align: center;
-        padding-top: 20px;
-        border-top: 2px solid #e9ecef;
-    }
-    
-    .btn-logout {
-        background: #e74c3c;
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 25px;
-        font-size: 1em;
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-        font-weight: bold;
-        text-decoration: none;
-        display: inline-block;
-    }
-    
-    .btn-logout:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
-        background: #c0392b;
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 5px 15px;
+    .option-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         border-radius: 20px;
-        font-size: 0.85em;
-        margin-top: 10px;
+        padding: 50px 30px;
+        text-decoration: none;
+        transition: all 0.4s ease;
+        cursor: pointer;
+        border: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .option-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 0;
+    }
+    
+    .option-card:hover::before {
+        opacity: 1;
+    }
+    
+    .option-card:hover {
+        transform: translateY(-15px) scale(1.05);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+    }
+    
+    .option-card .content {
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+    
+    .option-card:hover .content {
+        color: white;
+    }
+    
+    .option-card .icon {
+        font-size: 6em;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+    }
+    
+    .option-card h2 {
+        color: #667eea;
+        font-size: 2em;
+        margin-bottom: 15px;
         font-weight: bold;
+        transition: all 0.3s ease;
     }
     
-    .status-badge.available {
-        background: #2ecc71;
+    .option-card:hover h2 {
         color: white;
     }
     
-    .status-badge.coming-soon {
-        background: #f39c12;
-        color: white;
+    .option-card p {
+        color: #666;
+        font-size: 1.1em;
+        line-height: 1.6;
+        transition: all 0.3s ease;
+    }
+    
+    .option-card:hover p {
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .arrow {
+        font-size: 2em;
+        margin-top: 20px;
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+    
+    .option-card:hover .arrow {
+        transform: translateX(10px);
+    }
+    
+    @media (max-width: 768px) {
+        .welcome-header h1 {
+            font-size: 2.5em;
+        }
+        
+        .options-grid {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        .welcome-container {
+            padding: 40px 25px;
+        }
     }
 </style>
 
-<div class="container">
-    <h1>🎮 Plataforma de Juegos</h1>
-    <p class="subtitle">Bienvenido a tu centro de entretenimiento</p>
-    
-    {% if app.user %}
-    <div class="user-info">
-        <h2>👤 {{ app.user.nombre }}</h2>
-        <p>{{ app.user.email }}</p>
-    </div>
-    {% endif %}
-    
-    <div class="games-grid">
-        <a href="{{ path('app_game1') }}" class="game-card active">
-            <div class="icon">🐍</div>
-            <h3>Juego 1</h3>
-            <p>Snake Game</p>
-            <span class="status-badge available">Disponible</span>
-        </a>
-        
-        <a href="{{ path('app_game2') }}" class="game-card active">
-            <div class="icon">🎯</div>
-            <h3>Juego 2</h3>
-            <p>Juego disponible</p>
-            <span class="status-badge available">Disponible</span>
-        </a>
-        
-        <a href="{{ path('app_game3') }}" class="game-card active">
-            <div class="icon">❌⭕</div>
-            <h3>Juego 3</h3>
-            <p>Tres en Raya</p>
-            <span class="status-badge available">Disponible</span>
-        </a>
-        
-        <a href="{{ path('app_game4') }}" class="game-card active">
-            <div class="icon">🪢</div>
-            <h3>Juego 4</h3>
-            <p>Ahorcado</p>
-            <span class="status-badge available">Disponible</span>
-        </a>
-
-        <a href="{{ path('app_game5') }}" class="game-card active">
-            <div class="icon">🧠</div>
-            <h3>Juego 5</h3>
-            <p>Memory</p>
-            <span class="status-badge available">Disponible</span>
-        </a>
-
-        <a href="{{ path('app_game6') }}" class="game-card active">
-            <div class="icon">🔊</div>
-            <h3>Juego 6</h3>
-            <p>Simon dice</p>
-            <span class="status-badge available">Disponible</span>
-        </a>
-
-        {% if is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('app_admin') }}" class="game-card active">
-            <div class="icon">🛠️</div>
-            <h3>Panel Admin</h3>
-            <p>Gestionar usuarios</p>
-            <span class="status-badge available">Solo Admin</span>
-        </a>
+<div class="welcome-container">
+    <div class="welcome-header">
+        <h1>🎮 Bienvenido</h1>
+        <p class="subtitle">Plataforma de Juegos Interactivos</p>
+        {% if app.user %}
+            <div class="user-greeting">
+                <i class="bi bi-person-circle"></i> {{ app.user.nombre }}
+            </div>
         {% endif %}
     </div>
     
-    <div class="logout-section">
-        <a href="{{ path('app_logout') }}" class="btn-logout">🚪 Cerrar Sesión</a>
+    <div class="options-grid">
+        <!-- Opción 1: Ver Juegos -->
+        <a href="{{ path('app_game_platform') }}" class="option-card">
+            <div class="content">
+                <div class="icon">🎯</div>
+                <h2>Jugar</h2>
+                <p>Explora y juega a nuestra colección de juegos clásicos. ¡Diviértete y desafía tus habilidades!</p>
+                <div class="arrow">→</div>
+            </div>
+        </a>
+        
+        <!-- Opción 2: Ver Rankings -->
+        <a href="{{ path('app_game_ranking') }}" class="option-card">
+            <div class="content">
+                <div class="icon">🏆</div>
+                <h2>Rankings</h2>
+                <p>Consulta las mejores puntuaciones y compite por el primer lugar. ¿Serás el próximo campeón?</p>
+                <div class="arrow">→</div>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

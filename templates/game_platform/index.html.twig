@@ -1,20 +1,236 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
-{% block title %}Hello GamePlatformController!{% endblock %}
+{% block title %}Juegos Disponibles{% endblock %}
 
-{% block body %}
+{% block page_content %}
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    .content-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: calc(100vh - 56px);
+        padding: 40px 20px;
+    }
+    
+    .games-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 50px;
+    }
+    
+    .page-header h1 {
+        font-size: 3em;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .page-header p {
+        font-size: 1.3em;
+        opacity: 0.95;
+    }
+    
+    .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 20px 0;
+    }
+    
+    .game-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px 30px;
+        text-align: center;
+        transition: all 0.4s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .game-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 0;
+    }
+    
+    .game-card:hover::before {
+        opacity: 1;
+    }
+    
+    .game-card:hover {
+        transform: translateY(-15px) scale(1.05);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+    
+    .game-card .content {
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+    
+    .game-card:hover .content {
+        color: white;
+    }
+    
+    .game-card .icon {
+        font-size: 5em;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+    }
+    
+    .game-card h3 {
+        color: #667eea;
+        font-size: 1.8em;
+        margin-bottom: 10px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .game-card:hover h3 {
+        color: white;
+    }
+    
+    .game-card p {
+        color: #666;
+        font-size: 1.1em;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .game-card:hover p {
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        font-weight: bold;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .status-badge.available {
+        background: #2ecc71;
+        color: white;
+    }
+    
+    .game-card:hover .status-badge {
+        background: white;
+        color: #667eea;
+    }
+    
+    .play-arrow {
+        font-size: 2em;
+        margin-top: 15px;
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+    
+    .game-card:hover .play-arrow {
+        transform: translateX(10px);
+    }
+    
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2.2em;
+        }
+        
+        .games-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
 </style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+<div class="games-container">
+    <div class="page-header">
+        <h1>🎮 Juegos Disponibles</h1>
+        <p>Elige tu juego favorito y comienza a jugar</p>
+    </div>
+    
+    <div class="games-grid">
+        <!-- Juego 1: Snake -->
+        <a href="{{ path('app_game1') }}" class="game-card">
+            <div class="content">
+                <div class="icon">🐍</div>
+                <h3>Snake Game</h3>
+                <p>Juego clásico de la serpiente. Come manzanas y crece sin chocar.</p>
+                <span class="status-badge available">Disponible</span>
+                <div class="play-arrow">→</div>
+            </div>
+        </a>
+        
+        <!-- Juego 2: Tetris -->
+        <a href="{{ path('app_game2') }}" class="game-card">
+            <div class="content">
+                <div class="icon">🧱</div>
+                <h3>Tetris</h3>
+                <p>Juego de bloques clásico. Completa líneas para ganar puntos.</p>
+                <span class="status-badge available">Disponible</span>
+                <div class="play-arrow">→</div>
+            </div>
+        </a>
+        
+        <!-- Juego 3: Tres en Raya -->
+        <a href="{{ path('app_game3') }}" class="game-card">
+            <div class="content">
+                <div class="icon">❌⭕</div>
+                <h3>Tres en Raya</h3>
+                <p>Clásico juego de estrategia. ¡Tres en línea para ganar!</p>
+                <span class="status-badge available">Disponible</span>
+                <div class="play-arrow">→</div>
+            </div>
+        </a>
+        
+        <!-- Juego 4: Ahorcado -->
+        <a href="{{ path('app_game4') }}" class="game-card">
+            <div class="content">
+                <div class="icon">🪢</div>
+                <h3>Ahorcado</h3>
+                <p>Adivina la palabra antes de que se acabe el tiempo.</p>
+                <span class="status-badge available">Disponible</span>
+                <div class="play-arrow">→</div>
+            </div>
+        </a>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/xampp/htdocs/PlataformaJuegos/src/Controller/GamePlatformController.php</code></li>
-        <li>Your template at <code>C:/xampp/htdocs/PlataformaJuegos/templates/game_platform/index.html.twig</code></li>
-    </ul>
+        <!-- Juego 5: Memory -->
+        <a href="{{ path('app_game5') }}" class="game-card">
+            <div class="content">
+                <div class="icon">🧠</div>
+                <h3>Memory Game</h3>
+                <p>Encuentra las parejas de cartas. Pon a prueba tu memoria.</p>
+                <span class="status-badge available">Disponible</span>
+                <div class="play-arrow">→</div>
+            </div>
+        </a>
+
+        <!-- Juego 6: Simon Dice -->
+        <a href="{{ path('app_game6') }}" class="game-card">
+            <div class="content">
+                <div class="icon">🔊</div>
+                <h3>Simon Dice</h3>
+                <p>Repite la secuencia de colores. ¡Cada vez más difícil!</p>
+                <span class="status-badge available">Disponible</span>
+                <div class="play-arrow">→</div>
+            </div>
+        </a>
+    </div>
 </div>
 {% endblock %}
