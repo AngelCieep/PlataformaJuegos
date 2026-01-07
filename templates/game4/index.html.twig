@@ -225,6 +225,16 @@
     <div class="info-box leaderboard" style="margin-top:20px; max-width:750px; width:100%;">
         <h3>Top 10</h3>
         {% if user %}
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+            <input id="nickname" type="text" placeholder="Tu nombre para el ranking" style="padding:8px;border-radius:8px;border:1px solid #ddd;flex:1;min-width:160px;" />
+            <button class="btn" id="submitScoreBtn" onclick="submitScore()">Enviar puntuación</button>
+            <div style="font-size:13px;color:#555;">
+                <div>Victorias: <strong id="statWins">0</strong></div>
+                <div>Derrotas: <strong id="statLosses">0</strong></div>
+                <div>Aciertos: <strong id="statCorrects">0</strong></div>
+            </div>
+        </div>
+
         <ol id="leaderboardList" style="padding-left:18px; margin:0;">
             <li>Cargando...</li>
         </ol>
@@ -271,6 +281,7 @@ let guessed = new Set();
 let lives = 6;
 let wins = 0;
 let losses = 0;
+let corrects = 0; // Contador de aciertos (letras correctas acertadas)
 
 const drawStages = [drawBase, drawPole, drawBeam, drawRope, drawHead, drawBody, drawArms, drawLegs];
 
@@ -342,6 +353,9 @@ function handleKey(letter) {
     if (btn) btn.disabled = true;
 
     if (currentWord.includes(letter)) {
+        // Contar cuántas veces aparece la letra en la palabra y sumar a aciertos
+        const occurrences = currentWord.split('').filter(ch => ch === letter).length;
+        corrects += occurrences;
         updateHiddenWord();
         setMessage('¡Bien!');
         if (checkWin()) {
@@ -388,6 +402,7 @@ function newGame() {
     drawStep = 0;
     clearCanvas();
     drawBase();
+    corrects = 0;
     enableKeyboard(true);
 }
 
@@ -422,42 +437,72 @@ buildKeyboard();
 newGame();
 </script>
 <script>
-    async function fetchRanking() {
+    // Gestión del ranking en localStorage para este juego (Top 10)
+    const LB_KEY = 'game4_leaderboard';
+
+    function getLeaderboard() {
         try {
-            // Realizar una solicitud POST al endpoint /api/juego para obtener los datos del ranking
-            const response = await fetch('/api/juego', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    api_key: 'ABCDEFGHIJK1234567890', // Clave API de la aplicación
-                    token_juego: 'PONG_GAME_TOKEN_004' // Token para el Juego 4
-                })
-            });
-
-            // Analizar la respuesta JSON
-            const data = await response.json();
-
-            if (data.success) {
-                // Seleccionar el elemento de la lista de ranking
-                const rankingList = document.querySelector('.ranking ul');
-                rankingList.innerHTML = '';
-
-                // Rellenar la lista de ranking con los datos de los jugadores
-                data.data['Listado jugadores'].forEach(player => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${player.jugador} - ${player.Puntos} puntos`;
-                    rankingList.appendChild(listItem);
-                });
-            }
-        } catch (error) {
-            // Registrar cualquier error que ocurra durante la solicitud
-            console.error('Error al obtener el ranking:', error);
-        }
+            return JSON.parse(localStorage.getItem(LB_KEY) || '[]');
+        } catch (e) { return []; }
     }
 
-    // Obtener los datos del ranking cuando se cargue la página
-    document.addEventListener('DOMContentLoaded', fetchRanking);
+    function saveLeaderboard(arr) {
+        localStorage.setItem(LB_KEY, JSON.stringify(arr));
+    }
+
+    function renderLeaderboard() {
+        const listEl = document.getElementById('leaderboardList');
+        const statusEl = document.getElementById('leaderboardStatus');
+        const data = getLeaderboard();
+        listEl.innerHTML = '';
+        if (!data.length) {
+            listEl.innerHTML = '<li>No hay puntuaciones aún</li>';
+            statusEl.textContent = '';
+            return;
+        }
+        data.slice(0,10).forEach(entry => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${entry.name}</strong> — Vict: ${entry.wins} | Der: ${entry.losses} | Aciertos: ${entry.corrects}`;
+            listEl.appendChild(li);
+        });
+        statusEl.textContent = `Mostrando ${Math.min(10, data.length)} de ${data.length} entradas`;
+    }
+
+    function submitScore() {
+        const nameEl = document.getElementById('nickname');
+        const name = nameEl.value.trim() || 'Jugador';
+        const entry = {
+            name: name,
+            wins: wins,
+            losses: losses,
+            corrects: corrects,
+            date: new Date().toISOString()
+        };
+        const arr = getLeaderboard();
+        arr.push(entry);
+        // Ordenar por wins desc, luego corrects desc
+        arr.sort((a,b) => (b.wins - a.wins) || (b.corrects - a.corrects) || (new Date(a.date) - new Date(b.date)));
+        saveLeaderboard(arr);
+        renderLeaderboard();
+        const statusEl = document.getElementById('leaderboardStatus');
+        statusEl.textContent = 'Puntuación enviada.';
+        nameEl.value = '';
+    }
+
+    function updateStatDisplays() {
+        const w = document.getElementById('statWins');
+        const l = document.getElementById('statLosses');
+        const c = document.getElementById('statCorrects');
+        if (w) w.textContent = wins;
+        if (l) l.textContent = losses;
+        if (c) c.textContent = corrects;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderLeaderboard();
+        updateStatDisplays();
+        // Actualizar stats periódicamente (por si cambian durante la sesión)
+        setInterval(updateStatDisplays, 500);
+    });
 </script>
 {% endblock %}
