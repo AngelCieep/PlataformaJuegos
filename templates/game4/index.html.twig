@@ -437,7 +437,7 @@ newGame();
     async function fetchRanking() {
         try {
             // Realizar una solicitud POST al endpoint /api/juego para obtener los datos del ranking
-            const response = await fetch('/api/juego', {
+            const response = await fetch('/PlataformaJuegos/PlataformaJuegos/public/api/juego', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -451,7 +451,10 @@ newGame();
             // Analizar la respuesta JSON
             const data = await response.json();
 
+            console.log('Respuesta del servidor:', data);
             if (data.success) {
+                console.log('Datos del ranking:', data.data['Listado jugadores']);
+
                 // Seleccionar el elemento de la lista de ranking
                 const rankingList = document.querySelector('.ranking ul');
                 rankingList.innerHTML = '';
