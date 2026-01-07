@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partida index{% endblock %}
+
+{% block body %}
+    <h1>Partida index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Puntos</th>
+                <th>Fecha</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for partida in partidas %}
+            <tr>
+                <td>{{ partida.id }}</td>
+                <td>{{ partida.puntos }}</td>
+                <td>{{ partida.fecha ? partida.fecha|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_partida_show', {'id': partida.id}) }}">show</a>
+                    <a href="{{ path('app_partida_edit', {'id': partida.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_partida_new') }}">Create new</a>
+{% endblock %}
