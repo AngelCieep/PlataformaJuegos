@@ -141,6 +141,8 @@
     .instructions h3 { color: #ff5e62; margin-bottom: 10px; }
     .instructions ul { color: #555; list-style-position: inside; }
     .instructions li { margin: 6px 0; }
+    .leaderboard li span.points { float: right; color: #ff5e62; font-weight:700; }
+    .leaderboard ol { list-style: decimal; }
 </style>
 
 <div class="top-nav">
@@ -202,6 +204,18 @@
             <li>Gana quien haga línea de 3 (horizontal, vertical o diagonal).</li>
             <li>La puntuación se acumula; usa “Reiniciar Puntuaciones” para comenzar desde cero.</li>
         </ul>
+    </div>
+
+    <div class="info-box leaderboard" style="margin-top:20px; max-width:750px; width:100%;">
+        <h3>Top 10</h3>
+        {% if user %}
+        <ol id="leaderboardList" style="padding-left:18px; margin:0;">
+            <li>Cargando...</li>
+        </ol>
+        <p id="leaderboardStatus" style="font-size:12px;color:#888;margin-top:8px;"></p>
+        {% else %}
+        <p style="color:#f39c12; font-weight:600;">⚠ Inicia sesión para ver el ranking</p>
+        {% endif %}
     </div>
 </div>
 
@@ -313,5 +327,56 @@ function resetScores() {
 boardEl.addEventListener('click', handleClick);
 renderBoard();
 updateStatus('Empieza X');
+
+{% if user %}
+// Fetch leaderboard for Game3
+function fetchLeaderboard() {
+    const data = {
+        api_key: '{{ api_key }}',
+        token_usuario: '{{ user.email }}',
+        token_juego: '{{ game_token }}'
+    };
+
+    const listEl = document.getElementById('leaderboardList');
+    const statusEl = document.getElementById('leaderboardStatus');
+    if (!listEl || !statusEl) return;
+
+    statusEl.textContent = 'Cargando ranking...';
+
+    fetch('{{ path("api_juego") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en el servidor: ' + response.status);
+        return response.json();
+    })
+    .then(result => {
+        if (result.success && result.data && result.data['Listado jugadores']) {
+            const jugadores = result.data['Listado jugadores'];
+            listEl.innerHTML = '';
+            if (jugadores.length === 0) {
+                listEl.innerHTML = '<li>No hay resultados</li>';
+            } else {
+                jugadores.forEach(j => {
+                    const li = document.createElement('li');
+                    li.innerHTML = '<span class="player">' + j.jugador + '</span>' + '<span class="points">' + j.Puntos + '</span>';
+                    listEl.appendChild(li);
+                });
+            }
+            statusEl.textContent = '';
+        } else {
+            statusEl.textContent = 'No hay datos disponibles';
+        }
+    })
+    .catch(err => {
+        console.error('Error al cargar ranking:', err);
+        statusEl.textContent = 'Error al cargar ranking';
+    });
+}
+
+fetchLeaderboard();
+{% endif %}
 </script>
 {% endblock %}

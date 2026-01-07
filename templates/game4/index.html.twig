@@ -154,25 +154,11 @@
     .instructions h3 { color: #00b09b; margin-bottom: 8px; }
     .instructions ul { color: #555; list-style-position: inside; }
     .instructions li { margin: 6px 0; }
-    .ranking {
-        background: #f8f9fa;
-        border-radius: 15px;
-        padding: 18px;
-        margin-top: 18px;
-    }
-    .ranking h2 { color: #00b09b; margin-bottom: 8px; text-align: center; }
-    .ranking ul { color: #555; list-style-position: inside; padding-left: 0; }
-    .ranking li {
-        margin: 6px 0;
-        padding: 8px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        display: flex;
-        justify-content: space-between;
-    }
     @media (max-width: 768px) {
         .top-row { grid-template-columns: 1fr; }
     }
+    .leaderboard li span.points { float: right; color: #00b09b; font-weight:700; }
+    .leaderboard ol { list-style: decimal; }
 </style>
 
 <div class="top-nav">
@@ -236,14 +222,16 @@
         </ul>
     </div>
 
-    <div class="ranking">
-        <h2>Ranking de Jugadores</h2>
-        <ul>
-            {% for jugador in ranking %}
-                <!-- Mostrar el nombre y la puntuación de cada jugador -->
-                <li>{{ jugador.jugador }} - {{ jugador.Puntos }} puntos</li>
-            {% endfor %}
-        </ul>
+    <div class="info-box leaderboard" style="margin-top:20px; max-width:750px; width:100%;">
+        <h3>Top 10</h3>
+        {% if user %}
+        <ol id="leaderboardList" style="padding-left:18px; margin:0;">
+            <li>Cargando...</li>
+        </ol>
+        <p id="leaderboardStatus" style="font-size:12px;color:#888;margin-top:8px;"></p>
+        {% else %}
+        <p style="color:#f39c12; font-weight:600;">⚠ Inicia sesión para ver el ranking</p>
+        {% endif %}
     </div>
 </div>
 
@@ -433,43 +421,9 @@ document.addEventListener('keydown', (e) => {
 buildKeyboard();
 newGame();
 </script>
-<script>
-    async function fetchRanking() {
-        try {
-            // Realizar una solicitud POST al endpoint /api/juego para obtener los datos del ranking
-            const response = await fetch('/api/juego', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    api_key: 'ABCDEFGHIJK1234567890', // Clave API de la aplicación
-                    token_juego: 'PONG_GAME_TOKEN_004' // Token para el Juego 4
-                })
-            });
 
-            // Analizar la respuesta JSON
-            const data = await response.json();
+{% if user %}
 
-            if (data.success) {
-                // Seleccionar el elemento de la lista de ranking
-                const rankingList = document.querySelector('.ranking ul');
-                rankingList.innerHTML = '';
-
-                // Rellenar la lista de ranking con los datos de los jugadores
-                data.data['Listado jugadores'].forEach(player => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${player.jugador} - ${player.Puntos} puntos`;
-                    rankingList.appendChild(listItem);
-                });
-            }
-        } catch (error) {
-            // Registrar cualquier error que ocurra durante la solicitud
-            console.error('Error al obtener el ranking:', error);
-        }
-    }
-
-    // Obtener los datos del ranking cuando se cargue la página
-    document.addEventListener('DOMContentLoaded', fetchRanking);
+{% endif %}
 </script>
 {% endblock %}
