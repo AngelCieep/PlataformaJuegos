@@ -60,7 +60,8 @@ class JuegoFixtures extends Fixture implements FixtureGroupInterface
         $juegoPong = new Juego();
         $juegoPong->setNombre('Pong');
         $juegoPong->setTokenJuego('PONG_GAME_TOKEN_004');
-        $juegoPong->setDescription('Juego clásico de ping pong');
+        // Juego clásico de ping pong con ranking y puntuación de usuarios.
+        $juegoPong->setDescription('Juego clásico de ping pong con ranking y puntuación de usuarios.');
         $juegoPong->setEstado(true);
         $juegoPong->setAplicacion($aplicacion);
         $manager->persist($juegoPong);
