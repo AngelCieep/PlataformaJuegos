@@ -1,8 +1,8 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
-{% block title %}Ahorcado{% endblock %}
+{% block title %}Pong{% endblock %}
 
-{% block body %}
+{% block page_content %}
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -421,9 +421,43 @@ document.addEventListener('keydown', (e) => {
 buildKeyboard();
 newGame();
 </script>
+<script>
+    async function fetchRanking() {
+        try {
+            // Realizar una solicitud POST al endpoint /api/juego para obtener los datos del ranking
+            const response = await fetch('/api/juego', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    api_key: 'ABCDEFGHIJK1234567890', // Clave API de la aplicación
+                    token_juego: 'PONG_GAME_TOKEN_004' // Token para el Juego 4
+                })
+            });
 
-{% if user %}
+            // Analizar la respuesta JSON
+            const data = await response.json();
 
-{% endif %}
+            if (data.success) {
+                // Seleccionar el elemento de la lista de ranking
+                const rankingList = document.querySelector('.ranking ul');
+                rankingList.innerHTML = '';
+
+                // Rellenar la lista de ranking con los datos de los jugadores
+                data.data['Listado jugadores'].forEach(player => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${player.jugador} - ${player.Puntos} puntos`;
+                    rankingList.appendChild(listItem);
+                });
+            }
+        } catch (error) {
+            // Registrar cualquier error que ocurra durante la solicitud
+            console.error('Error al obtener el ranking:', error);
+        }
+    }
+
+    // Obtener los datos del ranking cuando se cargue la página
+    document.addEventListener('DOMContentLoaded', fetchRanking);
 </script>
 {% endblock %}

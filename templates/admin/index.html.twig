@@ -1,38 +1,17 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
 {% block title %}Panel de Administración{% endblock %}
 
-{% block body %}
+{% block page_content %}
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    .content-wrapper {
         background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-        min-height: 100vh;
+        min-height: calc(100vh - 56px);
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 20px;
+        padding: 40px 20px;
     }
-    .top-nav {
-        margin: 10px 0 20px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .nav-btn {
-        background: rgba(255, 255, 255, 0.16);
-        color: #fff;
-        padding: 8px 14px;
-        border-radius: 12px;
-        text-decoration: none;
-        font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-    }
-    .nav-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25); background: rgba(255, 255, 255, 0.22); }
-    .nav-btn.active-nav { background: #ffffff; color: #2c5364; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25); }
-    .nav-btn.logout { background: #e74c3c; border-color: rgba(255,255,255,0.25); }
-    .nav-btn.logout:hover { background: #c0392b; }
 
     .panel {
         background: #fff;
@@ -73,18 +52,6 @@
     .alert.error { background: #f8d7da; color: #721c24; }
     .alert.success { background: #d4edda; color: #155724; }
 </style>
-
-<div class="top-nav">
-    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game1' %} active-nav{% endif %}" href="{{ path('app_game1') }}">Juego 1</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game2' %} active-nav{% endif %}" href="{{ path('app_game2') }}">Juego 2</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game3' %} active-nav{% endif %}" href="{{ path('app_game3') }}">Juego 3</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game4' %} active-nav{% endif %}" href="{{ path('app_game4') }}">Juego 4</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game5' %} active-nav{% endif %}" href="{{ path('app_game5') }}">Juego 5</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game6' %} active-nav{% endif %}" href="{{ path('app_game6') }}">Juego 6</a>
-    <a class="nav-btn active-nav" href="{{ path('app_admin') }}">Panel Admin</a>
-    <a class="nav-btn logout" href="{{ path('app_logout') }}">Cerrar sesión</a>
-</div>
 
 <div class="panel">
     <h1>Panel de Administración</h1>
