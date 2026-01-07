@@ -1,20 +1,268 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout.html.twig' %}
 
-{% block title %}Hello GameRankingController!{% endblock %}
+{% block title %}Ranking de Juegos{% endblock %}
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .sidebar h3 {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .game-btn {
+            width: 100%;
+            text-align: left;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #333;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .game-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+            border-color: #764ba2;
+        }
+        
+        .game-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+            font-weight: bold;
+        }
+        
+        .game-btn i {
+            margin-right: 10px;
+        }
+        
+        .ranking-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ranking-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .ranking-header h2 {
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        .ranking-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        
+        .ranking-table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            border: none;
+        }
+        
+        .ranking-table thead th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .ranking-table thead th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .ranking-table tbody tr {
+            background: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .ranking-table tbody tr:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ranking-table tbody td {
+            padding: 15px;
+            border: none;
+        }
+        
+        .ranking-table tbody tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .ranking-table tbody tr td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .position {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+        
+        .position.gold {
+            color: #FFD700;
+            font-size: 1.5em;
+        }
+        
+        .position.silver {
+            color: #C0C0C0;
+            font-size: 1.4em;
+        }
+        
+        .position.bronze {
+            color: #CD7F32;
+            font-size: 1.3em;
+        }
+        
+        .points {
+            font-weight: bold;
+            color: #764ba2;
+            font-size: 1.1em;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .no-data i {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/xampp/htdocs/PlataformaJuegos/src/Controller/GameRankingController.php</code></li>
-        <li>Your template at <code>C:/xampp/htdocs/PlataformaJuegos/templates/game_ranking/index.html.twig</code></li>
-    </ul>
+{% block page_content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar con botones de juegos -->
+        <div class="col-md-3">
+            <div class="sidebar">
+                <h3><i class="bi bi-controller"></i> Juegos</h3>
+                
+                <!-- Botón para ver todos los rankings -->
+                <a href="{{ path('app_game_ranking') }}" class="btn game-btn {% if selectedJuego is null %}active{% endif %}">
+                    <i class="bi bi-trophy-fill"></i> Todos los Juegos
+                </a>
+                
+                <!-- Botones de cada juego -->
+                {% for juego in juegos %}
+                    <a href="{{ path('app_game_ranking_juego', {'id': juego.id}) }}" 
+                       class="btn game-btn {% if selectedJuego and selectedJuego.id == juego.id %}active{% endif %}">
+                        <i class="bi bi-joystick"></i> {{ juego.nombre }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Contenedor del ranking -->
+        <div class="col-md-9">
+            <div class="ranking-container">
+                <div class="ranking-header">
+                    {% if selectedJuego %}
+                        <h2><i class="bi bi-trophy-fill"></i> Ranking de {{ selectedJuego.nombre }}</h2>
+                        {% if selectedJuego.description %}
+                            <p class="mb-0">{{ selectedJuego.description }}</p>
+                        {% endif %}
+                    {% else %}
+                        <h2><i class="bi bi-trophy-fill"></i> Ranking Global de Todos los Juegos</h2>
+                        <p class="mb-0">Top 50 mejores puntuaciones</p>
+                    {% endif %}
+                </div>
+                
+                {% if ranking is empty %}
+                    <div class="no-data">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <h4>No hay partidas registradas</h4>
+                        <p>¡Sé el primero en jugar y aparecer en el ranking!</p>
+                    </div>
+                {% else %}
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Posición</th>
+                                <th>Jugador</th>
+                                {% if selectedJuego is null %}
+                                    <th>Juego</th>
+                                {% endif %}
+                                <th style="width: 150px;">Puntos</th>
+                                <th style="width: 180px;">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, partida in ranking %}
+                                <tr>
+                                    <td>
+                                        {% set position = key + 1 %}
+                                        {% if position == 1 %}
+                                            <span class="position gold"><i class="bi bi-trophy-fill"></i> 1º</span>
+                                        {% elseif position == 2 %}
+                                            <span class="position silver"><i class="bi bi-trophy-fill"></i> 2º</span>
+                                        {% elseif position == 3 %}
+                                            <span class="position bronze"><i class="bi bi-trophy-fill"></i> 3º</span>
+                                        {% else %}
+                                            <span class="position">{{ position }}º</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person-circle"></i> 
+                                        <strong>{{ partida.usuario.nombre }}</strong>
+                                    </td>
+                                    {% if selectedJuego is null %}
+                                        <td>
+                                            <i class="bi bi-joystick"></i> {{ partida.juego.nombre }}
+                                        </td>
+                                    {% endif %}
+                                    <td>
+                                        <span class="points">{{ partida.puntos }} pts</span>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-calendar-event"></i> 
+                                        {{ partida.fecha|date('d/m/Y H:i') }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

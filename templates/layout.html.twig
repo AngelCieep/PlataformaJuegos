@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <!-- Logo/Home a la izquierda -->
+            <a class="navbar-brand d-flex align-items-center" href="{{ path('app_home') }}">
+                <i class="bi bi-house-door-fill me-2"></i>
+                <span class="fw-bold">Plataforma de Juegos</span>
+            </a>
+
+            <!-- Botón hamburguesa para móvil -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Menú de navegación -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if app.user %}
+                        <!-- Enlace al ranking -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_game_ranking') }}">
+                                <i class="bi bi-trophy-fill"></i> Rankings
+                            </a>
+                        </li>
+                        
+                        <!-- Enlace a juegos -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_game_platform') }}">
+                                <i class="bi bi-controller"></i> Juegos
+                            </a>
+                        </li>
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <!-- Enlace al panel de admin -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_admin') }}">
+                                    <i class="bi bi-gear-fill"></i> Admin
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <!-- Usuario logueado -->
+                        <li class="nav-item">
+                            <span class="nav-link">
+                                <i class="bi bi-person-circle"></i> {{ app.user.nombre }}
+                            </span>
+                        </li>
+
+                        <!-- Botón de cierre de sesión -->
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-danger btn-sm ms-2" href="{{ path('app_logout') }}">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido de la página -->
+    <div class="content-wrapper">
+        {% block page_content %}{% endblock %}
+    </div>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar {
+            margin-bottom: 0;
+        }
+        
+        .navbar-brand {
+            font-size: 1.3rem;
+        }
+        
+        .navbar-brand:hover {
+            color: #ffc107 !important;
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #ffc107 !important;
+        }
+        
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .content-wrapper {
+            min-height: calc(100vh - 56px);
+        }
+    </style>
+{% endblock %}
