@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/admin/user')]
@@ -24,13 +25,20 @@ final class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Hash password if provided
+            $plain = $form->get('token')->getData();
+            if (!empty($plain)) {
+                $hashed = $passwordHasher->hashPassword($user, $plain);
+                $user->setToken($hashed);
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -39,7 +47,7 @@ final class UserController extends AbstractController
 
         return $this->render('user/new.html.twig', [
             'user' => $user,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -52,12 +60,19 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // If a new password was provided, hash and set it
+            $plain = $form->get('token')->getData();
+            if (!empty($plain)) {
+                $hashed = $passwordHasher->hashPassword($user, $plain);
+                $user->setToken($hashed);
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
@@ -65,14 +80,14 @@ final class UserController extends AbstractController
 
         return $this->render('user/edit.html.twig', [
             'user' => $user,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
             $entityManager->remove($user);
             $entityManager->flush();
         }
@@ -111,7 +126,8 @@ final class UserController extends AbstractController
                 return new JsonResponse(['success' => false, 'message' => 'Estado inválido'], 400);
             }
 
-            $user->setEstado($status);
+            // Convert status string to boolean (activo => true, inactivo => false)
+            $user->setEstado($status === 'activo');
             $entityManager->flush();
 
             return new JsonResponse(['success' => true, 'message' => 'Estado actualizado correctamente']);
