@@ -1,13 +1,45 @@
-{% extends 'layout.html.twig' %}
+{% extends '_navbar.html.twig' %}
 
-{% block title %}Edit Partida{% endblock %}
+{% block title %}Editar Partida{% endblock %}
 
 {% block page_content %}
-    <h1>Edit Partida</h1>
+<style>
+    .content-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: calc(100vh - 56px);
+        padding: 40px 20px;
+    }
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 { color: #667eea; margin-bottom: 30px; }
+    .btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; margin: 10px 5px 0 0; font-weight: 600; border: none; cursor: pointer; }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-danger { background: #e74c3c; color: white; }
+    .btn:hover { opacity: 0.9; transform: translateY(-2px); transition: all 0.3s; }
+    .form-actions { margin-top: 30px; padding-top: 20px; border-top: 2px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
+</style>
 
-    {{ include('partida/_form.html.twig', {'button_label': 'Update'}) }}
+<div class="form-container">
+    <h1><i class="bi bi-pencil-fill"></i> Editar Partida</h1>
 
-    <a href="{{ path('app_partida_index') }}">back to list</a>
+    {{ include('partida/_form.html.twig', {'button_label': 'Actualizar'}) }}
 
-    {{ include('partida/_delete_form.html.twig') }}
+    <div class="form-actions">
+        <div>
+            <a href="{{ path('app_partida_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+        </div>
+        <div>
+            {{ include('partida/_delete_form.html.twig') }}
+        </div>
+    </div>
+</div>
 {% endblock %}

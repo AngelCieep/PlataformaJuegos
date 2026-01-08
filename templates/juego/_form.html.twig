@@ -22,8 +22,19 @@
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
+    .form-check {
+        margin-bottom: 15px;
+    }
+    .form-check-label {
+        margin-left: 8px;
+        color: #666;
+    }
     select.form-control {
         cursor: pointer;
+    }
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
     }
     .btn-submit {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -49,27 +60,33 @@
 
 {{ form_start(form, {'attr': {'class': 'modern-form'}}) }}
     <div class="form-group">
-        {{ form_label(form.puntos) }}
-        {{ form_widget(form.puntos, {'attr': {'class': 'form-control', 'placeholder': 'Puntuación obtenida'}}) }}
-        {{ form_errors(form.puntos) }}
+        {{ form_label(form.nombre) }}
+        {{ form_widget(form.nombre, {'attr': {'class': 'form-control', 'placeholder': 'Nombre del juego'}}) }}
+        {{ form_errors(form.nombre) }}
     </div>
     
     <div class="form-group">
-        {{ form_label(form.fecha) }}
-        {{ form_widget(form.fecha, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.fecha) }}
+        {{ form_label(form.tokenJuego) }}
+        {{ form_widget(form.tokenJuego, {'attr': {'class': 'form-control', 'placeholder': 'TOKEN_JUEGO_001'}}) }}
+        {{ form_errors(form.tokenJuego) }}
     </div>
     
     <div class="form-group">
-        {{ form_label(form.usuario) }}
-        {{ form_widget(form.usuario, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.usuario) }}
+        {{ form_label(form.description) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Descripción del juego...'}}) }}
+        {{ form_errors(form.description) }}
+    </div>
+    
+    <div class="form-check">
+        {{ form_widget(form.estado, {'attr': {'class': 'form-check-input'}}) }}
+        {{ form_label(form.estado, null, {'label_attr': {'class': 'form-check-label'}}) }}
+        {{ form_errors(form.estado) }}
     </div>
     
     <div class="form-group">
-        {{ form_label(form.juego) }}
-        {{ form_widget(form.juego, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.juego) }}
+        {{ form_label(form.aplicacion) }}
+        {{ form_widget(form.aplicacion, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.aplicacion) }}
     </div>
     
     {{ form_rest(form) }}

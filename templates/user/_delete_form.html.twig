@@ -1,6 +1,6 @@
-<form method="post" action="{{ path('app_partida_delete', {'id': partida.id}) }}" id="delete-form-{{ partida.id }}">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partida.id) }}">
-    <button type="button" class="btn btn-danger" onclick="confirmDelete({{ partida.id }})">
+<form method="post" action="{{ path('app_user_delete', {'id': user.id}) }}" id="delete-form-{{ user.id }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+    <button type="button" class="btn btn-danger" onclick="confirmDelete({{ user.id }})">
         <i class="bi bi-trash-fill"></i> Eliminar
     </button>
 </form>

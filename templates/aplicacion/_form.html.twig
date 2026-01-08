@@ -22,8 +22,12 @@
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
-    select.form-control {
-        cursor: pointer;
+    .form-check {
+        margin-bottom: 15px;
+    }
+    .form-check-label {
+        margin-left: 8px;
+        color: #666;
     }
     .btn-submit {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -49,27 +53,21 @@
 
 {{ form_start(form, {'attr': {'class': 'modern-form'}}) }}
     <div class="form-group">
-        {{ form_label(form.puntos) }}
-        {{ form_widget(form.puntos, {'attr': {'class': 'form-control', 'placeholder': 'Puntuación obtenida'}}) }}
-        {{ form_errors(form.puntos) }}
+        {{ form_label(form.nombre) }}
+        {{ form_widget(form.nombre, {'attr': {'class': 'form-control', 'placeholder': 'Nombre de la aplicación'}}) }}
+        {{ form_errors(form.nombre) }}
     </div>
     
     <div class="form-group">
-        {{ form_label(form.fecha) }}
-        {{ form_widget(form.fecha, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.fecha) }}
+        {{ form_label(form.apiKey) }}
+        {{ form_widget(form.apiKey, {'attr': {'class': 'form-control', 'placeholder': 'API_KEY_123456789'}}) }}
+        {{ form_errors(form.apiKey) }}
     </div>
     
-    <div class="form-group">
-        {{ form_label(form.usuario) }}
-        {{ form_widget(form.usuario, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.usuario) }}
-    </div>
-    
-    <div class="form-group">
-        {{ form_label(form.juego) }}
-        {{ form_widget(form.juego, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.juego) }}
+    <div class="form-check">
+        {{ form_widget(form.estado, {'attr': {'class': 'form-check-input'}}) }}
+        {{ form_label(form.estado, null, {'label_attr': {'class': 'form-check-label'}}) }}
+        {{ form_errors(form.estado) }}
     </div>
     
     {{ form_rest(form) }}

@@ -1,4 +1,4 @@
-{% extends 'layout.html.twig' %}
+{% extends '_navbar.html.twig' %}
 
 {% block title %}Panel de Administración{% endblock %}
 
@@ -59,6 +59,21 @@
 
     {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
     {% if success %}<div class="alert success">{{ success }}</div>{% endif %}
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;">
+        <a href="{{ path('app_user_index') }}" class="btn primary">
+            <i class="bi bi-people-fill"></i> Gestionar Usuarios
+        </a>
+        <a href="{{ path('app_partida_index') }}" class="btn primary">
+            <i class="bi bi-trophy-fill"></i> Gestionar Partidas
+        </a>
+        <a href="{{ path('app_juego_index') }}" class="btn primary">
+            <i class="bi bi-controller"></i> Gestionar Juegos
+        </a>
+        <a href="{{ path('app_aplicacion_index') }}" class="btn primary">
+            <i class="bi bi-app"></i> Gestionar Aplicaciones
+        </a>
+    </div>
 
     <div class="grid">
         <div class="card">

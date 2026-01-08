@@ -1,37 +1,81 @@
-{% extends 'layout.html.twig' %}
+{% extends '_navbar.html.twig' %}
 
-{% block title %}Partida index{% endblock %}
+{% block title %}Gestión de Partidas{% endblock %}
 
 {% block page_content %}
-    <h1>Partida index</h1>
+<style>
+    .content-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: calc(100vh - 56px);
+        padding: 40px 20px;
+    }
+    .crud-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 { color: #667eea; margin-bottom: 30px; }
+    .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-block; margin: 5px; font-weight: 600; border: none; cursor: pointer; }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-success { background: #2ecc71; color: white; }
+    .btn-info { background: #3498db; color: white; }
+    .btn:hover { opacity: 0.9; transform: translateY(-2px); transition: all 0.3s; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e9ecef; }
+    th { background: #f8f9fa; color: #667eea; font-weight: bold; }
+    tr:hover { background: #f8f9fa; }
+    .points { font-weight: bold; color: #764ba2; font-size: 1.1em; }
+</style>
 
-    <table class="table">
+<div class="crud-container">
+    <h1><i class="bi bi-trophy-fill"></i> Gestión de Partidas</h1>
+    
+    <div style="margin-bottom: 20px;">
+        <a href="{{ path('app_partida_new') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Crear Nueva Partida
+        </a>
+        <a href="{{ path('app_admin') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Volver al Panel
+        </a>
+    </div>
+
+    <table>
         <thead>
             <tr>
-                <th>Id</th>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Juego</th>
                 <th>Puntos</th>
                 <th>Fecha</th>
-                <th>actions</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
         {% for partida in partidas %}
             <tr>
                 <td>{{ partida.id }}</td>
-                <td>{{ partida.puntos }}</td>
-                <td>{{ partida.fecha ? partida.fecha|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ partida.usuario.nombre }}</td>
+                <td>{{ partida.juego.nombre }}</td>
+                <td><span class="points">{{ partida.puntos }} pts</span></td>
+                <td>{{ partida.fecha ? partida.fecha|date('d/m/Y H:i') : '' }}</td>
                 <td>
-                    <a href="{{ path('app_partida_show', {'id': partida.id}) }}">show</a>
-                    <a href="{{ path('app_partida_edit', {'id': partida.id}) }}">edit</a>
+                    <a href="{{ path('app_partida_show', {'id': partida.id}) }}" class="btn btn-info">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{{ path('app_partida_edit', {'id': partida.id}) }}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="4">no records found</td>
+                <td colspan="6" style="text-align: center; color: #999;">No hay partidas registradas</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
-    <a href="{{ path('app_partida_new') }}">Create new</a>
+</div>
 {% endblock %}

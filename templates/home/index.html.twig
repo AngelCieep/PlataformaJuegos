@@ -1,194 +1,220 @@
-{% extends 'layout.html.twig' %}
+{% extends '_navbar.html.twig' %}
 
-{% block title %}Bienvenido - Plataforma de Juegos{% endblock %}
+{% block title %}Bienvenido - ScoreNest{% endblock %}
 
 {% block page_content %}
 <style>
-    .content-wrapper {
+    html, body {
+        height: 100vh;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    .home-container {
+        height: calc(100vh - 56px);
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: calc(100vh - 56px);
         display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px 20px;
+        flex-direction: column;
+        padding: 30px 80px;
+        box-sizing: border-box;
+        overflow: hidden;
     }
-    
-    .welcome-container {
-        background: white;
-        border-radius: 30px;
-        padding: 60px 40px;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
-        max-width: 1000px;
-        width: 100%;
-        text-align: center;
-    }
-    
-    .welcome-header {
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
         margin-bottom: 50px;
     }
-    
-    .welcome-header h1 {
-        color: #667eea;
-        font-size: 3.5em;
-        margin-bottom: 15px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        font-weight: bold;
-    }
-    
-    .welcome-header .subtitle {
-        color: #666;
-        font-size: 1.3em;
-        margin-bottom: 10px;
-    }
-    
-    .user-greeting {
-        display: inline-block;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    .title-area h1 {
         color: white;
-        padding: 15px 30px;
-        border-radius: 50px;
-        font-size: 1.2em;
-        margin-bottom: 30px;
+        font-size: 3.5em;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        line-height: 1.2;
+    }
+
+    .user-area {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 15px 25px;
+        border-radius: 15px;
+        color: white;
+        text-align: right;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .user-area .label {
+        font-size: 0.85em;
+        opacity: 0.9;
+        margin-bottom: 3px;
+    }
+
+    .user-area .name {
+        font-size: 1.3em;
         font-weight: 600;
     }
-    
-    .options-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 40px;
-        margin-top: 40px;
+
+    .description-section {
+        max-width: 700px;
+        margin-bottom: 50px;
     }
-    
-    .option-card {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+    .description-section p {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1.2em;
+        line-height: 1.6;
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .buttons-section {
+        display: flex;
+        gap: 25px;
+        flex-wrap: wrap;
+    }
+
+    .main-button {
+        flex: 1;
+        min-width: 280px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px 40px;
         border-radius: 20px;
-        padding: 50px 30px;
         text-decoration: none;
-        transition: all 0.4s ease;
-        cursor: pointer;
-        border: 3px solid transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
         position: relative;
         overflow: hidden;
     }
-    
-    .option-card::before {
+
+    .main-button::before {
         content: '';
         position: absolute;
         top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        z-index: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
     }
-    
-    .option-card:hover::before {
-        opacity: 1;
+
+    .main-button:hover::before {
+        left: 100%;
     }
-    
-    .option-card:hover {
-        transform: translateY(-15px) scale(1.05);
-        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+
+    .main-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
     }
-    
-    .option-card .content {
-        position: relative;
-        z-index: 1;
-        transition: all 0.3s ease;
+
+    .main-button .icon {
+        font-size: 2.5em;
+        margin-bottom: 12px;
     }
-    
-    .option-card:hover .content {
-        color: white;
-    }
-    
-    .option-card .icon {
-        font-size: 6em;
-        margin-bottom: 20px;
-        filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
-    }
-    
-    .option-card h2 {
+
+    .main-button .button-title {
+        font-size: 1.8em;
+        font-weight: 700;
         color: #667eea;
-        font-size: 2em;
-        margin-bottom: 15px;
-        font-weight: bold;
-        transition: all 0.3s ease;
+        margin-bottom: 8px;
     }
-    
-    .option-card:hover h2 {
-        color: white;
-    }
-    
-    .option-card p {
+
+    .main-button .button-desc {
+        font-size: 1em;
         color: #666;
-        font-size: 1.1em;
-        line-height: 1.6;
-        transition: all 0.3s ease;
+        line-height: 1.4;
     }
-    
-    .option-card:hover p {
-        color: rgba(255, 255, 255, 0.95);
-    }
-    
-    .arrow {
-        font-size: 2em;
-        margin-top: 20px;
-        display: inline-block;
+
+    .main-button .arrow {
+        font-size: 1.3em;
+        color: #764ba2;
+        margin-top: 12px;
         transition: transform 0.3s ease;
     }
-    
-    .option-card:hover .arrow {
+
+    .main-button:hover .arrow {
         transform: translateX(10px);
     }
-    
+
+    @media (max-width: 1024px) {
+        .home-container {
+            padding: 40px 50px;
+        }
+
+        .header-section {
+            margin-bottom: 50px;
+        }
+
+        .title-area h1 {
+            font-size: 3em;
+        }
+
+        .description-section {
+            margin-bottom: 50px;
+        }
+
+        .buttons-section {
+            flex-direction: column;
+        }
+
+        .main-button {
+            min-width: 100%;
+        }
+    }
+
     @media (max-width: 768px) {
-        .welcome-header h1 {
+        .header-section {
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .user-area {
+            text-align: left;
+        }
+
+        .title-area h1 {
             font-size: 2.5em;
-        }
-        
-        .options-grid {
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-        
-        .welcome-container {
-            padding: 40px 25px;
         }
     }
 </style>
 
-<div class="welcome-container">
-    <div class="welcome-header">
-        <h1>🎮 Bienvenido</h1>
-        <p class="subtitle">Plataforma de Juegos Interactivos</p>
+<div class="home-container">
+    <div class="header-section">
+        <div class="title-area">
+            <h1>ScoreNest</h1>
+        </div>
         {% if app.user %}
-            <div class="user-greeting">
-                <i class="bi bi-person-circle"></i> {{ app.user.nombre }}
-            </div>
+        <div class="user-area">
+            <div class="label">Bienvenido/a</div>
+            <div class="name">{{ app.user.nombre }}</div>
+        </div>
         {% endif %}
     </div>
-    
-    <div class="options-grid">
-        <!-- Opción 1: Ver Juegos -->
-        <a href="{{ path('app_game_platform') }}" class="option-card">
-            <div class="content">
-                <div class="icon">🎯</div>
-                <h2>Jugar</h2>
-                <p>Explora y juega a nuestra colección de juegos clásicos. ¡Diviértete y desafía tus habilidades!</p>
-                <div class="arrow">→</div>
-            </div>
+
+    <div class="description-section">
+        <p>Disfruta de una colección de juegos clásicos, compite por las mejores puntuaciones y demuestra tus habilidades.</p>
+    </div>
+
+    <div class="buttons-section">
+        <a href="{{ path('app_game_platform') }}" class="main-button">
+            <div class="icon">🎮</div>
+            <div class="button-title">Juegos</div>
+            <div class="button-desc">Explora y juega nuestra colección</div>
+            <div class="arrow">→</div>
         </a>
-        
-        <!-- Opción 2: Ver Rankings -->
-        <a href="{{ path('app_game_ranking') }}" class="option-card">
-            <div class="content">
-                <div class="icon">🏆</div>
-                <h2>Rankings</h2>
-                <p>Consulta las mejores puntuaciones y compite por el primer lugar. ¿Serás el próximo campeón?</p>
-                <div class="arrow">→</div>
-            </div>
+
+        <a href="{{ path('app_game_ranking') }}" class="main-button">
+            <div class="icon">🏆</div>
+            <div class="button-title">Rankings</div>
+            <div class="button-desc">Consulta las mejores puntuaciones</div>
+            <div class="arrow">→</div>
         </a>
     </div>
 </div>

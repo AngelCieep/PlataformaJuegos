@@ -21,13 +21,19 @@ final class GameRankingController extends AbstractController
         // Obtener todos los juegos activos
         $juegos = $juegoRepository->findBy(['estado' => true], ['nombre' => 'ASC']);
         
-        // Obtener todas las partidas ordenadas por puntos (ranking global)
+        // Obtener la mejor puntuación de cada usuario (ranking global)
         $ranking = $partidaRepository->createQueryBuilder('p')
             ->select('p')
             ->join('p.usuario', 'u')
             ->join('p.juego', 'j')
-            ->orderBy('p.puntos', 'DESC')
-            ->addOrderBy('p.fecha', 'DESC')
+            ->where('p.id IN (
+                SELECT p2.id FROM App\\Entity\\Partida p2
+                WHERE p2.usuario = p.usuario
+                ORDER BY p2.puntos DESC, p2.fecha DESC
+            )')
+            ->groupBy('u.id')
+            ->orderBy('MAX(p.puntos)', 'DESC')
+            ->addOrderBy('MAX(p.fecha)', 'DESC')
             ->setMaxResults(50)
             ->getQuery()
             ->getResult();
@@ -49,12 +55,17 @@ final class GameRankingController extends AbstractController
         // Obtener todos los juegos activos
         $juegos = $juegoRepository->findBy(['estado' => true], ['nombre' => 'ASC']);
         
-        // Obtener el ranking del juego seleccionado
+        // Obtener la mejor puntuación de cada usuario en el juego seleccionado
         $ranking = $partidaRepository->createQueryBuilder('p')
             ->select('p')
             ->join('p.usuario', 'u')
             ->where('p.juego = :juego')
+            ->andWhere('p.puntos = (
+                SELECT MAX(p2.puntos) FROM App\\Entity\\Partida p2
+                WHERE p2.usuario = p.usuario AND p2.juego = :juego
+            )')
             ->setParameter('juego', $juego)
+            ->groupBy('u.id')
             ->orderBy('p.puntos', 'DESC')
             ->addOrderBy('p.fecha', 'DESC')
             ->setMaxResults(50)
