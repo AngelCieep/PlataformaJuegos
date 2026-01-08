@@ -226,12 +226,8 @@
         <h3>Top 10</h3>
         {% if user %}
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
-            <input id="nickname" type="text" placeholder="Tu nombre para el ranking" style="padding:8px;border-radius:8px;border:1px solid #ddd;flex:1;min-width:160px;" />
-            <button class="btn" id="submitScoreBtn" onclick="submitScore()">Enviar puntuación</button>
-            <div style="font-size:13px;color:#555;">
-                <div>Victorias: <strong id="statWins">0</strong></div>
-                <div>Derrotas: <strong id="statLosses">0</strong></div>
-                <div>Aciertos: <strong id="statCorrects">0</strong></div>
+            <div style="font-size:15px;color:#333;">
+                Usuario: <strong id="currentUser">{{ user.username|default(user.email|default('Jugador')) }}</strong>
             </div>
         </div>
 
@@ -363,6 +359,8 @@ function handleKey(letter) {
             winsEl.textContent = wins;
             setMessage('¡Has ganado!', '#27ae60');
             enableKeyboard(false);
+            // Registrar la ronda como victoria en el leaderboard
+            try { submitRound('victoria'); } catch (e) { console.warn(e); }
         }
     } else {
         setLives(lives - 1);
@@ -374,6 +372,8 @@ function handleKey(letter) {
             setMessage('Has perdido. La palabra era: ' + currentWord, '#c0392b');
             revealWord();
             enableKeyboard(false);
+            // Registrar la ronda como derrota en el leaderboard
+            try { submitRound('derrota'); } catch (e) { console.warn(e); }
         }
     }
 }
@@ -498,11 +498,30 @@ newGame();
         if (c) c.textContent = corrects;
     }
 
+    // Nombre del usuario actual (establecido desde Twig)
+    const currentUserName = "{{ user.username|default(user.email|default('Jugador')) }}";
+
+    function submitRound(result) {
+        // attemptsUsed: cuantos intentos se han usado en esta ronda (menos es mejor)
+        const attemptsUsed = 6 - Math.max(0, lives);
+        const entry = {
+            name: currentUserName,
+            result: result, // 'victoria' | 'derrota'
+            attempts: attemptsUsed,
+            date: new Date().toISOString()
+        };
+        const arr = getLeaderboard();
+        arr.push(entry);
+        // Ordenar por attempts asc (menos intentos primero), si empate ordenar por fecha asc
+        arr.sort((a,b) => (a.attempts - b.attempts) || (new Date(a.date) - new Date(b.date)));
+        saveLeaderboard(arr);
+        renderLeaderboard();
+        const statusEl = document.getElementById('leaderboardStatus');
+        if (statusEl) statusEl.textContent = 'Última partida registrada.';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         renderLeaderboard();
-        updateStatDisplays();
-        // Actualizar stats periódicamente (por si cambian durante la sesión)
-        setInterval(updateStatDisplays, 500);
     });
 </script>
 {% endblock %}
