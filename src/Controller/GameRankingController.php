@@ -18,30 +18,28 @@ final class GameRankingController extends AbstractController
         PartidaRepository $partidaRepository
     ): Response
     {
-        // Obtener todos los juegos activos
-        $juegos = $juegoRepository->findBy(['estado' => true], ['nombre' => 'ASC']);
-        
-        // Obtener la mejor puntuación de cada usuario (ranking global)
-        $ranking = $partidaRepository->createQueryBuilder('p')
-            ->select('p')
-            ->join('p.usuario', 'u')
-            ->join('p.juego', 'j')
-            ->where('p.id IN (
-                SELECT p2.id FROM App\\Entity\\Partida p2
-                WHERE p2.usuario = p.usuario
-                ORDER BY p2.puntos DESC, p2.fecha DESC
-            )')
-            ->groupBy('u.id')
-            ->orderBy('MAX(p.puntos)', 'DESC')
-            ->addOrderBy('MAX(p.fecha)', 'DESC')
-            ->setMaxResults(50)
+        // Obtener el juego con más partidas
+        $juegoConMasPartidas = $juegoRepository->createQueryBuilder('j')
+            ->select('j', 'COUNT(p.id) as HIDDEN partidasCount')
+            ->leftJoin('j.partidas', 'p')
+            ->where('j.estado = true')
+            ->groupBy('j.id')
+            ->orderBy('partidasCount', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
         
+        // Si hay juegos, redirigir al que tiene más partidas
+        if ($juegoConMasPartidas) {
+            return $this->redirectToRoute('app_game_ranking_juego', ['id' => $juegoConMasPartidas->getId()]);
+        }
+        
+        // Si no hay juegos, mostrar página vacía
         return $this->render('game_ranking/index.html.twig', [
-            'juegos' => $juegos,
-            'ranking' => $ranking,
+            'juegos' => [],
+            'ranking' => [],
             'selectedJuego' => null,
+            'top1PorJuego' => [],
         ]);
     }
     
@@ -52,8 +50,37 @@ final class GameRankingController extends AbstractController
         PartidaRepository $partidaRepository
     ): Response
     {
-        // Obtener todos los juegos activos
-        $juegos = $juegoRepository->findBy(['estado' => true], ['nombre' => 'ASC']);
+        // Obtener todos los juegos activos con su cantidad de partidas, ordenados por cantidad
+        $juegos = $juegoRepository->createQueryBuilder('j')
+            ->select('j', 'COUNT(p.id) as HIDDEN partidasCount')
+            ->leftJoin('j.partidas', 'p')
+            ->where('j.estado = true')
+            ->groupBy('j.id')
+            ->orderBy('partidasCount', 'DESC')
+            ->addOrderBy('j.nombre', 'ASC')
+            ->getQuery()
+            ->getResult();
+        
+        // Obtener el conteo de partidas por juego para pasarlo a la vista
+        $partidasPorJuego = [];
+        $top1PorJuego = [];
+        foreach ($juegos as $juego_item) {
+            $partidasPorJuego[$juego_item->getId()] = $partidaRepository->count(['juego' => $juego_item]);
+            
+            // Obtener el TOP 1 de este juego
+            $topPartida = $partidaRepository->createQueryBuilder('p')
+                ->select('p')
+                ->join('p.usuario', 'u')
+                ->where('p.juego = :juego')
+                ->setParameter('juego', $juego_item)
+                ->orderBy('p.puntos', 'DESC')
+                ->addOrderBy('p.fecha', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+            
+            $top1PorJuego[$juego_item->getId()] = $topPartida;
+        }
         
         // Obtener la mejor puntuación de cada usuario en el juego seleccionado
         $ranking = $partidaRepository->createQueryBuilder('p')
@@ -76,6 +103,7 @@ final class GameRankingController extends AbstractController
             'juegos' => $juegos,
             'ranking' => $ranking,
             'selectedJuego' => $juego,
+            'top1PorJuego' => $top1PorJuego,
         ]);
     }
 }

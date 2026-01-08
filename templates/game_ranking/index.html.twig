@@ -5,10 +5,40 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .ranking-page-container {
+            height: calc(100vh - 56px);
+            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .ranking-row {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .sidebar-col {
+            height: 100%;
+            overflow: hidden;
+            padding-right: 10px;
+        }
+        
+        .ranking-col {
+            height: 100%;
+            overflow: hidden;
+            padding-left: 10px;
         }
         
         .sidebar {
@@ -16,8 +46,10 @@
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 20px;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
         
         .sidebar h3 {
@@ -26,6 +58,13 @@
             margin-bottom: 20px;
             border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+        
+        .games-list {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px;
         }
         
         .game-btn {
@@ -39,6 +78,32 @@
             color: #333;
             transition: all 0.3s ease;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .game-position {
+            font-weight: bold;
+            font-size: 1.1em;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .game-position.gold {
+            color: #FFD700;
+        }
+        
+        .game-position.silver {
+            color: #C0C0C0;
+        }
+        
+        .game-position.bronze {
+            color: #CD7F32;
+        }
+        
+        .game-info {
+            flex: 1;
         }
         
         .game-btn:hover {
@@ -59,11 +124,30 @@
             margin-right: 10px;
         }
         
+        .game-top1 {
+            display: block;
+            font-size: 0.8em;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+        
+        .game-top1 .player-name {
+            font-weight: 600;
+        }
+        
+        .game-top1 .player-score {
+            font-weight: bold;
+        }
+        
         .ranking-container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 30px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
         
         .ranking-header {
@@ -73,6 +157,7 @@
             border-radius: 10px;
             margin-bottom: 30px;
             text-align: center;
+            flex-shrink: 0;
         }
         
         .ranking-header h2 {
@@ -169,30 +254,45 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="container-fluid py-4">
-    <div class="row">
+<div class="ranking-page-container">
+    <div class="row ranking-row">
         <!-- Sidebar con botones de juegos -->
-        <div class="col-md-3">
+        <div class="col-md-3 sidebar-col">
             <div class="sidebar">
                 <h3><i class="bi bi-controller"></i> Juegos</h3>
                 
-                <!-- Botón para ver todos los rankings -->
-                <a href="{{ path('app_game_ranking') }}" class="btn game-btn {% if selectedJuego is null %}active{% endif %}">
-                    <i class="bi bi-trophy-fill"></i> Todos los Juegos
-                </a>
-                
-                <!-- Botones de cada juego -->
-                {% for juego in juegos %}
+                <div class="games-list">
+                    <!-- Botones de cada juego -->
+                    {% for juego in juegos %}
+                    {% set position = loop.index %}
                     <a href="{{ path('app_game_ranking_juego', {'id': juego.id}) }}" 
                        class="btn game-btn {% if selectedJuego and selectedJuego.id == juego.id %}active{% endif %}">
-                        <i class="bi bi-joystick"></i> {{ juego.nombre }}
+                        <div class="game-position {% if position == 1 %}gold{% elseif position == 2 %}silver{% elseif position == 3 %}bronze{% endif %}">
+                            {{ position }}º
+                        </div>
+                        <div class="game-info">
+                            <div>
+                                <i class="bi bi-joystick"></i> {{ juego.nombre }}
+                            </div>
+                            {% if top1PorJuego[juego.id] is defined and top1PorJuego[juego.id] %}
+                                <div class="game-top1">
+                                    <span class="player-name">{{ top1PorJuego[juego.id].usuario.nombre }}</span> - 
+                                    <span class="player-score">{{ top1PorJuego[juego.id].puntos }} pts</span>
+                                </div>
+                            {% else %}
+                                <div class="game-top1">
+                                    <span style="opacity: 0.6;">Sin partidas</span>
+                                </div>
+                            {% endif %}
+                        </div>
                     </a>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
         
         <!-- Contenedor del ranking -->
-        <div class="col-md-9">
+        <div class="col-md-9 ranking-col">
             <div class="ranking-container">
                 <div class="ranking-header">
                     {% if selectedJuego %}
@@ -200,9 +300,6 @@
                         {% if selectedJuego.description %}
                             <p class="mb-0">{{ selectedJuego.description }}</p>
                         {% endif %}
-                    {% else %}
-                        <h2><i class="bi bi-trophy-fill"></i> Ranking Global de Todos los Juegos</h2>
-                        <p class="mb-0">Top 50 mejores puntuaciones</p>
                     {% endif %}
                 </div>
                 
@@ -218,9 +315,6 @@
                             <tr>
                                 <th style="width: 80px;">Posición</th>
                                 <th>Jugador</th>
-                                {% if selectedJuego is null %}
-                                    <th>Juego</th>
-                                {% endif %}
                                 <th style="width: 150px;">Puntos</th>
                                 <th style="width: 180px;">Fecha</th>
                             </tr>
@@ -244,11 +338,6 @@
                                         <i class="bi bi-person-circle"></i> 
                                         <strong>{{ partida.usuario.nombre }}</strong>
                                     </td>
-                                    {% if selectedJuego is null %}
-                                        <td>
-                                            <i class="bi bi-joystick"></i> {{ partida.juego.nombre }}
-                                        </td>
-                                    {% endif %}
                                     <td>
                                         <span class="points">{{ partida.puntos }} pts</span>
                                     </td>
