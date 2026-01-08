@@ -4,82 +4,141 @@
 
 {% block page_content %}
 <style>
-    body {
+    html, body {
+        height: 100vh;
+        overflow: hidden;
         margin: 0;
-        padding: 0 0 20px;
+        padding: 0;
+    }
+
+    body {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         font-family: 'Arial', sans-serif;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-    }
-
-    .top-nav {
-        margin: 20px 0 16px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .nav-btn {
-        background: rgba(255, 255, 255, 0.16);
-        color: #fff;
-        padding: 8px 14px;
-        border-radius: 12px;
-        text-decoration: none;
-        font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-    }
-
-    .nav-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-        background: rgba(255, 255, 255, 0.22);
-    }
-
-    .nav-btn.active-nav {
-        background: #ffffff;
-        color: #764ba2;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-    }
-
-    .nav-btn.logout {
-        background: #e74c3c;
-        border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    .nav-btn.logout:hover {
-        background: #c0392b;
     }
 
     .game-container {
         display: flex;
-        gap: 20px;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        gap: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        align-items: flex-start;
+        box-sizing: border-box;
+        height: calc(100vh - 56px);
+        overflow: hidden;
     }
 
-    .left-panel {
+    .ranking-section {
+        flex: 0 0 25%;
         display: flex;
         flex-direction: column;
         gap: 15px;
+        justify-content: flex-start;
+        align-items: center;
+        box-sizing: border-box;
+        overflow-y: auto;
+        padding: 20px 15px;
+        height: 100%;
+    }
+
+    .game-section {
+        flex: 0 0 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        justify-content: flex-start;
+        box-sizing: border-box;
+        overflow: hidden;
+        padding: 20px 15px;
+        height: 100%;
+    }
+
+    .info-section {
+        flex: 0 0 25%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        justify-content: flex-start;
+        align-items: center;
+        box-sizing: border-box;
+        overflow-y: auto;
+        padding: 20px 15px;
+        height: 100%;
+    }
+
+    .ranking-section {
+        grid-column: 4;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 300px;
+    }
+
+    .game-row {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+        justify-content: center;
+        max-width: 100%;
+    }
+
+    .back-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+
+    .back-button i {
+        margin-right: 8px;
+    }
+
+    .back-button i {
+        margin-right: 8px;
+    }
+
+    .hold-box {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .next-box {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-board {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
     }
 
     .info-box {
         background: rgba(255, 255, 255, 0.9);
-
-        /* Evitar scroll con flechas y espacio durante el juego */
-        html, body {
-            overscroll-behavior: contain;
-        }
         padding: 15px;
         border-radius: 10px;
-        min-width: 150px;
+        min-width: 120px;
+        max-width: 100%;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+        overflow: hidden;
     }
 
     .info-box h3 {
@@ -111,13 +170,16 @@
         background: #222;
         display: block;
         border-radius: 5px;
+        width: 100px;
+        height: 70px;
     }
 
-    .game-board {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .next-canvas {
+        background: #222;
+        display: block;
+        border-radius: 5px;
+        width: 100px;
+        height: 200px;
     }
 
     #tetris {
@@ -125,18 +187,6 @@
         display: block;
         border-radius: 5px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .right-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .next-canvas {
-        background: #222;
-        display: block;
-        border-radius: 5px;
     }
 
     .controls {
@@ -233,69 +283,92 @@
         font-weight: bold;
         z-index: 999;
     }
+
+    @media (max-width: 1024px) {
+        .game-container {
+            flex-direction: column;
+        }
+        
+        .ranking-section, .game-section, .info-section {
+            flex: 1 1 100%;
+        }
+        
+        .game-row {
+            flex-wrap: wrap;
+        }
+    }
 </style>
 
-<div class="top-nav">
-    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game1' %} active-nav{% endif %}" href="{{ path('app_game1') }}">Juego 1</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game2' %} active-nav{% endif %}" href="{{ path('app_game2') }}">Juego 2</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game3' %} active-nav{% endif %}" href="{{ path('app_game3') }}">Juego 3</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game4' %} active-nav{% endif %}" href="{{ path('app_game4') }}">Juego 4</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game5' %} active-nav{% endif %}" href="{{ path('app_game5') }}">Juego 5</a>
-    <a class="nav-btn{% if app.request.attributes.get('_route') == 'app_game6' %} active-nav{% endif %}" href="{{ path('app_game6') }}">Juego 6</a>
-    {% if is_granted('ROLE_ADMIN') %}
-    <a class="nav-btn" href="{{ path('app_admin') }}">Admin</a>
-    {% endif %}
-    <a class="nav-btn logout" href="{{ path('app_logout') }}">Cerrar sesión</a>
-</div>
-
 <div class="game-container">
-    <div class="left-panel">
-        {% if user %}
-        <div class="info-box">
-            <h3>Player</h3>
-            <div style="font-size: 16px; color: #555; font-weight: bold;">{{ user.nombre }}</div>
-            <div style="font-size: 12px; color: #888; margin-top: 5px;">{{ user.email }}</div>
-        </div>
-        {% endif %}
-        <div class="info-box">
-            <h3>Score</h3>
-            <div class="score-display" id="score">0</div>
-        </div>
-        <div class="info-box">
-            <h3>Level</h3>
-            <div class="level-display" id="level">1</div>
-        </div>
-        <div class="info-box">
-            <h3>Lines</h3>
-            <div class="lines-display" id="lines">0</div>
-        </div>
-        <div class="info-box">
-            <h3>Hold (C)</h3>
-            <canvas id="holdCanvas" width="120" height="80" class="hold-canvas"></canvas>
+    <!-- Columna izquierda: Info usuario + Controles + Botón (25%) -->
+    <div class="info-section">
+        <div class="info-box" style="width: 100%; max-width: 100%;">
+            <a href="{{ path('app_game_platform') }}" class="back-button">
+                <i class="bi bi-arrow-left-circle"></i> Volver
+            </a>
+            
+            {% if user %}
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
+                <h3 style="margin: 0 0 10px 0; color: #667eea;">Player</h3>
+                <div style="font-size: 16px; color: #555; font-weight: bold;">{{ user.nombre }}</div>
+                <div style="font-size: 12px; color: #888; margin-top: 5px;">{{ user.email }}</div>
+            </div>
+            {% endif %}
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
+                <h3 style="margin: 0 0 10px 0; color: #667eea;">Controls</h3>
+                <p style="margin: 5px 0; color: #555;"><strong style="color: #764ba2; display: inline-block; width: 100px;">← →</strong> Move</p>
+                <p style="margin: 5px 0; color: #555;"><strong style="color: #764ba2; display: inline-block; width: 100px;">↓</strong> Soft Drop</p>
+                <p style="margin: 5px 0; color: #555;"><strong style="color: #764ba2; display: inline-block; width: 100px;">↑</strong> Rotate</p>
+                <p style="margin: 5px 0; color: #555;"><strong style="color: #764ba2; display: inline-block; width: 100px;">Space</strong> Hard Drop</p>
+                <p style="margin: 5px 0; color: #555;"><strong style="color: #764ba2; display: inline-block; width: 100px;">C</strong> Hold/Swap</p>
+                <p style="margin: 5px 0; color: #555;"><strong style="color: #764ba2; display: inline-block; width: 100px;">P</strong> Pause</p>
+            </div>
         </div>
     </div>
 
-    <div class="game-board">
-        <canvas id="tetris" width="300" height="600"></canvas>
-        <div class="paused-overlay" id="pausedOverlay">PAUSED</div>
+    <!-- Columna centro: Juego de Tetris (50%) -->
+    <div class="game-section">
+        <div class="info-box" style="padding: 25px; width: 100%; max-width: 100%;">
+            <div class="game-row">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="info-box hold-box">
+                        <h3>Hold (C)</h3>
+                        <canvas id="holdCanvas" width="100" height="70" class="hold-canvas"></canvas>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>Score</h3>
+                        <div class="score-display" id="score">0</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>Level</h3>
+                        <div class="level-display" id="level">1</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>Lines</h3>
+                        <div class="lines-display" id="lines">0</div>
+                    </div>
+                </div>
+                
+                <div class="game-board">
+                    <canvas id="tetris" width="240" height="480"></canvas>
+                    <div class="paused-overlay" id="pausedOverlay">PAUSED</div>
+                </div>
+                
+                <div class="info-box next-box">
+                    <h3>Next</h3>
+                    <canvas id="nextCanvas" width="100" height="200" class="next-canvas"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="right-panel">
-        <div class="info-box">
-            <h3>Next</h3>
-            <canvas id="nextCanvas" width="120" height="240" class="next-canvas"></canvas>
-        </div>
-        <div class="controls">
-            <h3>Controls</h3>
-            <p><strong>← →</strong> Move</p>
-            <p><strong>↓</strong> Soft Drop</p>
-            <p><strong>↑</strong> Rotate</p>
-            <p><strong>Space</strong> Hard Drop</p>
-            <p><strong>C</strong> Hold/Swap</p>
-            <p><strong>P</strong> Pause</p>
-        </div>
-        <div class="info-box leaderboard">
+    <!-- Columna derecha: Ranking (25%) -->
+    <div class="ranking-section">
+        <div class="info-box leaderboard" style="width: 100%; max-width: 100%;">
             <h3>Top 10</h3>
             {% if user %}
             <ol id="leaderboardList" style="padding-left:18px; margin:0;">
@@ -306,7 +379,7 @@
             <p style="color:#f39c12; font-weight:600;">⚠ Inicia sesión para ver el ranking</p>
             {% endif %}
         </div>
-    </div> 
+    </div>
 </div>
 
 <div class="game-over-overlay" id="gameOverOverlay">
@@ -330,7 +403,7 @@
 
     const ROWS = 20;
     const COLS = 10;
-    const BLOCK_SIZE = 30;
+    const BLOCK_SIZE = 24;
     const COLORS = [
         '#000000', // 0 - empty
         '#00f0f0', // 1 - I (cyan)
@@ -461,9 +534,9 @@
         
         nextPieces.forEach((piece, index) => {
             const tempPiece = piece.clone();
-            tempPiece.x = 1;
-            tempPiece.y = index * 2.5;
-            drawPiece(tempPiece, nextCtx, 0, 0, 24);
+            tempPiece.x = 0.5;
+            tempPiece.y = index * 2.2;
+            drawPiece(tempPiece, nextCtx, 0, 0, 20);
         });
     }
 
@@ -473,9 +546,9 @@
         
         if (holdPiece) {
             const tempPiece = holdPiece.clone();
-            tempPiece.x = 1;
-            tempPiece.y = 1;
-            drawPiece(tempPiece, holdCtx, 0, 0, 24);
+            tempPiece.x = 0.5;
+            tempPiece.y = 0.5;
+            drawPiece(tempPiece, holdCtx, 0, 0, 20);
         }
     }
 
