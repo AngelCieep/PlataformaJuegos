@@ -1,6 +1,6 @@
 {% extends '_navbar.html.twig' %}
 
-{% block title %}Crear Partida{% endblock %}
+{% block title %}Crear Usuario{% endblock %}
 
 {% block page_content %}
 <style>
@@ -26,12 +26,12 @@
 </style>
 
 <div class="form-container">
-    <h1><i class="bi bi-trophy-fill"></i> Crear Nueva Partida</h1>
+    <h1><i class="bi bi-person-plus-fill"></i> Crear Nuevo Usuario</h1>
 
-    {{ include('partida/_form.html.twig') }}
+    {{ include('user/_form.html.twig') }}
 
     <div class="form-actions">
-        <a href="{{ path('app_partida_index') }}" class="btn btn-secondary">
+        <a href="{{ path('app_user_index') }}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Volver al listado
         </a>
     </div>

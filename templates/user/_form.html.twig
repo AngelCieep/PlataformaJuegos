@@ -22,8 +22,19 @@
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
+    .form-check {
+        margin-bottom: 15px;
+    }
+    .form-check-label {
+        margin-left: 8px;
+        color: #666;
+    }
     select.form-control {
         cursor: pointer;
+    }
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
     }
     .btn-submit {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -49,28 +60,38 @@
 
 {{ form_start(form, {'attr': {'class': 'modern-form'}}) }}
     <div class="form-group">
-        {{ form_label(form.puntos) }}
-        {{ form_widget(form.puntos, {'attr': {'class': 'form-control', 'placeholder': 'Puntuación obtenida'}}) }}
-        {{ form_errors(form.puntos) }}
+        {{ form_label(form.email) }}
+        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'ejemplo@correo.com'}}) }}
+        {{ form_errors(form.email) }}
     </div>
     
     <div class="form-group">
-        {{ form_label(form.fecha) }}
-        {{ form_widget(form.fecha, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.fecha) }}
+        {{ form_label(form.nombre) }}
+        {{ form_widget(form.nombre, {'attr': {'class': 'form-control', 'placeholder': 'Nombre del usuario'}}) }}
+        {{ form_errors(form.nombre) }}
     </div>
     
+    {% if form.token is defined %}
     <div class="form-group">
-        {{ form_label(form.usuario) }}
-        {{ form_widget(form.usuario, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.usuario) }}
+        {{ form_label(form.token) }}
+        {{ form_widget(form.token, {'attr': {'class': 'form-control', 'placeholder': 'Contraseña'}}) }}
+        {{ form_errors(form.token) }}
     </div>
+    {% endif %}
     
     <div class="form-group">
-        {{ form_label(form.juego) }}
-        {{ form_widget(form.juego, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.juego) }}
+        {{ form_label(form.roles) }}
+        {{ form_widget(form.roles, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.roles) }}
     </div>
+    
+    {% if form.estado is defined %}
+    <div class="form-check">
+        {{ form_widget(form.estado, {'attr': {'class': 'form-check-input'}}) }}
+        {{ form_label(form.estado, null, {'label_attr': {'class': 'form-check-label'}}) }}
+        {{ form_errors(form.estado) }}
+    </div>
+    {% endif %}
     
     {{ form_rest(form) }}
     

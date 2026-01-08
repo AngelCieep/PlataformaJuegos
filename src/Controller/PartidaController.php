@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/partida')]
+#[Route('/admin/partida')]
 final class PartidaController extends AbstractController
 {
     #[Route(name: 'app_partida_index', methods: ['GET'])]
