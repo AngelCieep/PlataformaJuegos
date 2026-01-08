@@ -1,0 +1,388 @@
+================================================================================
+                    DOCUMENTACIÓN DE ENDPOINTS API - SCORENEST
+================================================================================
+
+================================================================================
+1. /api/prueba (GET)
+================================================================================
+Método: GET
+Descripción: Prueba básica de conexión a la API
+
+Body Request: 
+No requiere body
+
+Respuesta OK (200):
+{
+  "message": "API is working"
+}
+
+Respuesta Error:
+No tiene respuestas de error
+
+================================================================================
+2. /api/conexion (POST)
+================================================================================
+Método: POST
+Descripción: Validar API-KEY y obtener token de acceso
+
+Body Request:
+{
+  "api_key": "tu_api_key_aqui"
+}
+
+Respuesta OK (200):
+{
+  "success": true,
+  "message": "Conexión exitosa",
+  "data": {
+    "access_token": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2"
+  }
+}
+
+Respuestas Error:
+
+Error 400 - API-KEY no proporcionada:
+{
+  "success": false,
+  "message": "API-KEY no proporcionada",
+  "data": ""
+}
+
+Error 401 - API-KEY inválida o inactiva:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+================================================================================
+3. /api/login (POST)
+================================================================================
+Método: POST
+Descripción: Login de usuario y obtención de token de usuario con listado de juegos
+
+Body Request:
+{
+  "api_key": "tu_api_key_aqui",
+  "usuario": "usuario@email.com",
+  "password": "contraseña123"
+}
+
+Respuesta OK (200):
+{
+  "success": true,
+  "message": "Usuario válido",
+  "data": {
+    "usuario_token": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8",
+    "Listado juegos": [
+      {
+        "juego": "Tetris",
+        "Partidas": "5",
+        "token": "token_juego_tetris"
+      },
+      {
+        "juego": "Snake",
+        "Partidas": "3",
+        "token": "token_juego_snake"
+      }
+    ]
+  }
+}
+
+Respuestas Error:
+
+Error 400 - API-KEY no proporcionada:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 401 - API-KEY inválida:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 400 - Faltan usuario o password:
+{
+  "success": false,
+  "message": "Usuario o contraseña no proporcionados",
+  "data": ""
+}
+
+Error 401 - Usuario o contraseña incorrectos:
+{
+  "success": false,
+  "message": "Usuario o contraseña incorrectos",
+  "data": ""
+}
+
+================================================================================
+4. /api/registro (POST)
+================================================================================
+Método: POST
+Descripción: Registro de nuevo usuario
+
+Body Request:
+{
+  "api_key": "tu_api_key_aqui",
+  "nombre": "Juan Pérez",
+  "email": "juan.perez@email.com",
+  "password": "contraseña123"
+}
+
+Respuesta OK (201):
+{
+  "success": true,
+  "message": "Usuario registrado",
+  "data": {
+    "usuario_token": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8",
+    "Listado juegos": [
+      {
+        "juego": "Tetris",
+        "Partidas": "0",
+        "token": "token_juego_tetris"
+      },
+      {
+        "juego": "Snake",
+        "Partidas": "0",
+        "token": "token_juego_snake"
+      }
+    ]
+  }
+}
+
+Respuestas Error:
+
+Error 400 - API-KEY no proporcionada:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 401 - API-KEY inválida:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 400 - Faltan datos obligatorios:
+{
+  "success": false,
+  "message": "Error en el registro del nuevo usuario",
+  "data": "Faltan datos obligatorios (nombre, email, password)"
+}
+
+Error 409 - Usuario ya existe:
+{
+  "success": false,
+  "message": "Error en el registro del nuevo usuario",
+  "data": "La cuenta ya está dada de alta"
+}
+
+Error 500 - Error al guardar en base de datos:
+{
+  "success": false,
+  "message": "Error en el registro del nuevo usuario",
+  "data": "Error al guardar en la base de datos"
+}
+
+================================================================================
+5. /api/juego (POST)
+================================================================================
+Método: POST
+Descripción: Obtener información del juego y ranking TOP 10
+
+Body Request (con token de usuario):
+{
+  "api_key": "tu_api_key_aqui",
+  "token_juego": "token_juego_tetris",
+  "token_usuario": "usuario@email.com"
+}
+
+Body Request (sin token de usuario - ranking público):
+{
+  "api_key": "tu_api_key_aqui",
+  "token_juego": "token_juego_tetris"
+}
+
+Respuesta OK (200) - Con token usuario:
+{
+  "success": true,
+  "message": "Listado de resultados del juego",
+  "data": {
+    "Puntos usuario": "1500",
+    "Listado jugadores": [
+      {
+        "jugador": "María García",
+        "Puntos": "2500"
+      },
+      {
+        "jugador": "Juan Pérez",
+        "Puntos": "1500"
+      },
+      {
+        "jugador": "Ana López",
+        "Puntos": "1200"
+      }
+    ]
+  }
+}
+
+Respuesta OK (200) - Sin token usuario:
+{
+  "success": true,
+  "message": "Listado de resultados del juego",
+  "data": {
+    "Puntos usuario": "0",
+    "Listado jugadores": [
+      {
+        "jugador": "María García",
+        "Puntos": "2500"
+      },
+      {
+        "jugador": "Juan Pérez",
+        "Puntos": "1500"
+      }
+    ]
+  }
+}
+
+Respuestas Error:
+
+Error 400 - API-KEY no proporcionada:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 401 - API-KEY inválida:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 400 - Falta token_juego:
+{
+  "success": false,
+  "message": "Error, faltan datos requeridos",
+  "data": "Se requiere token_juego"
+}
+
+Error 404 - Juego no encontrado o inactivo:
+{
+  "success": false,
+  "message": "Error, no hay registro de ese juego",
+  "data": "Error en el registro del juego"
+}
+
+================================================================================
+6. /api/juego/guardar (POST)
+================================================================================
+Método: POST
+Descripción: Guardar partida finalizada y obtener ranking actualizado
+
+Body Request:
+{
+  "api_key": "tu_api_key_aqui",
+  "token_usuario": "usuario@email.com",
+  "token_juego": "token_juego_tetris",
+  "puntos": 1850
+}
+
+Respuesta OK (200):
+{
+  "success": true,
+  "message": "Listado de resultados del juego",
+  "data": {
+    "usuario_token": "usuario@email.com",
+    "Listado jugadores": [
+      {
+        "jugador": "María García",
+        "Puntos": "2500"
+      },
+      {
+        "jugador": "Juan Pérez",
+        "Puntos": "1850"
+      },
+      {
+        "jugador": "Ana López",
+        "Puntos": "1200"
+      }
+    ]
+  }
+}
+
+Respuestas Error:
+
+Error 400 - API-KEY no proporcionada:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 401 - API-KEY inválida:
+{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}
+
+Error 400 - Faltan datos requeridos:
+{
+  "success": false,
+  "message": "Error, faltan datos requeridos",
+  "data": "Se requieren token_usuario, token_juego y puntos"
+}
+
+Error 404 - Juego no encontrado:
+{
+  "success": false,
+  "message": "Error, no hay registro de ese juego",
+  "data": "Error en el registro del juego"
+}
+
+Error 404 - Usuario no encontrado:
+{
+  "success": false,
+  "message": "Error, usuario no encontrado",
+  "data": "No se pudo identificar al usuario con ese email"
+}
+
+Error 500 - Error al guardar:
+{
+  "success": false,
+  "message": "Error al guardar la partida",
+  "data": "Error en la base de datos"
+}
+
+================================================================================
+NOTAS IMPORTANTES
+================================================================================
+
+1. Todos los endpoints POST requieren el header: Content-Type: application/json
+
+2. API-KEY: Debe ser válida y la aplicación debe estar activa (estado = true)
+
+3. Token de usuario: En los endpoints de login y registro, se usa el email del 
+   usuario como token_usuario
+
+4. Puntos: El sistema guarda todas las partidas pero muestra solo la mejor 
+   puntuación de cada usuario en los rankings
+
+5. Listado de jugadores: Siempre devuelve TOP 10 ordenado por mejor puntuación 
+   de cada jugador
+
+6. Base URL: Todos los endpoints deben ser precedidos por la URL base de tu 
+   servidor (ejemplo: http://localhost/api/login)
+
+================================================================================
+FIN DE LA DOCUMENTACIÓN
+================================================================================
