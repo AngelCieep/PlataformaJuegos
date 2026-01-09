@@ -62,10 +62,12 @@
                 <td><strong>{{ aplicacion.nombre }}</strong></td>
                 <td><code>{{ aplicacion.apiKey }}</code></td>
                 <td>
-                    <select class="form-select form-select-sm" onchange="updateAplicacionStatus({{ aplicacion.id }}, this.value)" style="width: auto; display: inline-block;">
-                        <option value="1" {% if aplicacion.estado %}selected{% endif %}>Activa</option>
-                        <option value="0" {% if not aplicacion.estado %}selected{% endif %}>Inactiva</option>
-                    </select>
+                    <form method="post" action="{{ path('app_aplicacion_update_status', {'id': aplicacion.id}) }}" style="display: inline;">
+                        <select class="form-select form-select-sm" name="status" onchange="this.form.submit()" style="width: auto; display: inline-block;">
+                            <option value="activo" {% if aplicacion.estado %}selected{% endif %}>Activa</option>
+                            <option value="inactivo" {% if not aplicacion.estado %}selected{% endif %}>Inactiva</option>
+                        </select>
+                    </form>
                 </td>
                 <td>
                     <a href="{{ path('app_aplicacion_show', {'id': aplicacion.id}) }}" class="btn btn-info">
@@ -85,29 +87,4 @@
     </table>
 </div>
 
-<script>
-function updateAplicacionStatus(aplicacionId, status) {
-    fetch(`/admin/aplicacion/${aplicacionId}/status`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: status })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Actualizado!',
-                text: 'Estado actualizado correctamente',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire('Error', 'No se pudo actualizar el estado', 'error');
-        }
-    });
-}
-</script>
 {% endblock %}

@@ -51,6 +51,33 @@ final class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/role', name: 'app_user_update_role', methods: ['POST'])]
+    public function updateRole(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        $role = $request->request->get('role');
+
+        if ($role && in_array($role, ['ROLE_USER', 'ROLE_ADMIN'])) {
+            $user->setRoles([$role]);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/status', name: 'app_user_update_status', methods: ['POST'])]
+    public function updateStatus(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        $status = $request->request->get('status');
+
+        if (in_array($status, ['activo', 'inactivo'])) {
+            // Convert status string to boolean (activo => true, inactivo => false)
+            $user->setEstado($status === 'activo');
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
@@ -93,47 +120,6 @@ final class UserController extends AbstractController
         }
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/{id}/role', name: 'app_user_update_role', methods: ['POST'])]
-    public function updateRole(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $role = $data['role'] ?? null;
-
-            if (!$role || !in_array($role, ['ROLE_USER', 'ROLE_ADMIN'])) {
-                return new JsonResponse(['success' => false, 'message' => 'Rol inválido'], 400);
-            }
-
-            $user->setRoles([$role]);
-            $entityManager->flush();
-
-            return new JsonResponse(['success' => true, 'message' => 'Rol actualizado correctamente']);
-        } catch (\Exception $e) {
-            return new JsonResponse(['success' => false, 'message' => 'Error al actualizar el rol'], 500);
-        }
-    }
-
-    #[Route('/{id}/status', name: 'app_user_update_status', methods: ['POST'])]
-    public function updateStatus(Request $request, User $user, EntityManagerInterface $entityManager): JsonResponse
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $status = $data['status'] ?? null;
-
-            if (!in_array($status, ['activo', 'inactivo'])) {
-                return new JsonResponse(['success' => false, 'message' => 'Estado inválido'], 400);
-            }
-
-            // Convert status string to boolean (activo => true, inactivo => false)
-            $user->setEstado($status === 'activo');
-            $entityManager->flush();
-
-            return new JsonResponse(['success' => true, 'message' => 'Estado actualizado correctamente']);
-        } catch (\Exception $e) {
-            return new JsonResponse(['success' => false, 'message' => 'Error al actualizar el estado'], 500);
-        }
     }
 }
 

@@ -43,6 +43,20 @@ final class AplicacionController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/status', name: 'app_aplicacion_update_status', methods: ['POST'])]
+    public function updateStatus(Request $request, Aplicacion $aplicacion, EntityManagerInterface $entityManager): Response
+    {
+        $status = $request->request->get('status');
+
+        if (in_array($status, ['activo', 'inactivo'])) {
+            // Convertir string a boolean (activo => true, inactivo => false)
+            $aplicacion->setEstado($status === 'activo');
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_aplicacion_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/{id}', name: 'app_aplicacion_show', methods: ['GET'])]
     public function show(Aplicacion $aplicacion): Response
     {
@@ -78,26 +92,6 @@ final class AplicacionController extends AbstractController
         }
 
         return $this->redirectToRoute('app_aplicacion_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/{id}/status', name: 'app_aplicacion_update_status', methods: ['POST'])]
-    public function updateStatus(Request $request, Aplicacion $aplicacion, EntityManagerInterface $entityManager): JsonResponse
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $status = $data['status'] ?? null;
-
-            if (!in_array($status, ['activo', 'inactivo'])) {
-                return new JsonResponse(['success' => false, 'message' => 'Estado inválido'], 400);
-            }
-
-            $aplicacion->setEstado($status);
-            $entityManager->flush();
-
-            return new JsonResponse(['success' => true, 'message' => 'Estado actualizado correctamente']);
-        } catch (\Exception $e) {
-            return new JsonResponse(['success' => false, 'message' => 'Error al actualizar el estado'], 500);
-        }
     }
 }
 

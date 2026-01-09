@@ -43,6 +43,20 @@ final class JuegoController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/status', name: 'app_juego_update_status', methods: ['POST'])]
+    public function updateStatus(Request $request, Juego $juego, EntityManagerInterface $entityManager): Response
+    {
+        $status = $request->request->get('status');
+
+        if (in_array($status, ['activo', 'inactivo'])) {
+            // Convertir string a boolean (activo => true, inactivo => false)
+            $juego->setEstado($status === 'activo');
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_juego_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/{id}', name: 'app_juego_show', methods: ['GET'])]
     public function show(Juego $juego): Response
     {
@@ -78,26 +92,6 @@ final class JuegoController extends AbstractController
         }
 
         return $this->redirectToRoute('app_juego_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/{id}/status', name: 'app_juego_update_status', methods: ['POST'])]
-    public function updateStatus(Request $request, Juego $juego, EntityManagerInterface $entityManager): JsonResponse
-    {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $status = $data['status'] ?? null;
-
-            if (!in_array($status, ['activo', 'inactivo'])) {
-                return new JsonResponse(['success' => false, 'message' => 'Estado inválido'], 400);
-            }
-
-            $juego->setEstado($status);
-            $entityManager->flush();
-
-            return new JsonResponse(['success' => true, 'message' => 'Estado actualizado correctamente']);
-        } catch (\Exception $e) {
-            return new JsonResponse(['success' => false, 'message' => 'Error al actualizar el estado'], 500);
-        }
     }
 }
 

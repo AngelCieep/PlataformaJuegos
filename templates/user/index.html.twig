@@ -66,16 +66,20 @@
                 <td>{{ user.nombre }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                    <select class="form-select form-select-sm" onchange="updateUserRole({{ user.id }}, this.value)" style="width: auto; display: inline-block;">
-                        <option value="user" {% if 'ROLE_ADMIN' not in user.roles %}selected{% endif %}>Usuario</option>
-                        <option value="admin" {% if 'ROLE_ADMIN' in user.roles %}selected{% endif %}>Admin</option>
-                    </select>
+                    <form method="post" action="{{ path('app_user_update_role', {'id': user.id}) }}" style="display: inline;">
+                        <select class="form-select form-select-sm" name="role" onchange="this.form.submit()" style="width: auto; display: inline-block;">
+                            <option value="ROLE_USER" {% if 'ROLE_ADMIN' not in user.roles %}selected{% endif %}>Usuario</option>
+                            <option value="ROLE_ADMIN" {% if 'ROLE_ADMIN' in user.roles %}selected{% endif %}>Admin</option>
+                        </select>
+                    </form>
                 </td>
                 <td>
-                    <select class="form-select form-select-sm" onchange="updateUserStatus({{ user.id }}, this.value)" style="width: auto; display: inline-block;">
-                        <option value="1" {% if user.estado %}selected{% endif %}>Activo</option>
-                        <option value="0" {% if not user.estado %}selected{% endif %}>Inactivo</option>
-                    </select>
+                    <form method="post" action="{{ path('app_user_update_status', {'id': user.id}) }}" style="display: inline;">
+                        <select class="form-select form-select-sm" name="status" onchange="this.form.submit()" style="width: auto; display: inline-block;">
+                            <option value="activo" {% if user.estado %}selected{% endif %}>Activo</option>
+                            <option value="inactivo" {% if not user.estado %}selected{% endif %}>Inactivo</option>
+                        </select>
+                    </form>
                 </td>
                 <td>{{ user.fechaRegistro ? user.fechaRegistro|date('d/m/Y H:i') : '-' }}</td>
                 <td>
@@ -96,53 +100,4 @@
     </table>
 </div>
 
-<script>
-function updateUserRole(userId, role) {
-    fetch(`/admin/user/${userId}/role`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ role: role })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Actualizado!',
-                text: 'Rol actualizado correctamente',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire('Error', 'No se pudo actualizar el rol', 'error');
-        }
-    });
-}
-
-function updateUserStatus(userId, status) {
-    fetch(`/admin/user/${userId}/status`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: status })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Actualizado!',
-                text: 'Estado actualizado correctamente',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        } else {
-            Swal.fire('Error', 'No se pudo actualizar el estado', 'error');
-        }
-    });
-}
-</script>
 {% endblock %}
