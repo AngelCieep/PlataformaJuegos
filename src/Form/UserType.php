@@ -47,6 +47,7 @@ class UserType extends AbstractType
         }
 
         $builder->add('estado', CheckboxType::class, [
+            'label' => 'Activo',
             'required' => false,
         ]);
     }

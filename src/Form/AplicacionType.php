@@ -14,7 +14,9 @@ class AplicacionType extends AbstractType
         $builder
             ->add('nombre')
             ->add('apiKey')
-            ->add('estado')
+            ->add('estado', null, [
+                'label' => 'Activo',
+            ])
         ;
     }
 

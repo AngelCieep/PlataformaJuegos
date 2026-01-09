@@ -68,6 +68,12 @@
                     <a href="{{ path('app_partida_edit', {'id': partida.id}) }}" class="btn btn-primary">
                         <i class="bi bi-pencil"></i>
                     </a>
+                    <form method="post" action="{{ path('app_partida_delete', {'id': partida.id}) }}" style="display: inline;" id="delete-form-{{ partida.id }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ partida.id) }}">
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete({{ partida.id }}, 'Partida #{{ partida.id }}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
         {% else %}
@@ -80,6 +86,23 @@
 </div>
 
 <script>
+function confirmDelete(id, nombre) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: `¿Deseas eliminar "${nombre}"? Esta acción no se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('delete-form-' + id).submit();
+        }
+    });
+}
+
 {% for type, messages in app.flashes %}
     {% for message in messages %}
         {% if type == 'success' %}
