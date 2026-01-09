@@ -45,11 +45,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Partida::class)]
     private Collection $partidas;
 
-    // ✅ SOLO ESTO FUE AGREGADO:
-    #[ORM\Column(length: 50, nullable: true)]
-    private ?string $rol = null;
-    // ✅ FIN DE LO AGREGADO
-
     public function __construct()
     {
         $this->fechaRegistro = new \DateTimeImmutable();
@@ -212,16 +207,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-   
-    public function getRol(): ?string
-    {
-        return $this->rol;
-    }
-
-    public function setRol(?string $rol): static
-    {
-        $this->rol = $rol;
-        return $this;
-    }
     
 }
