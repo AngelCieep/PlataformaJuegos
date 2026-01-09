@@ -30,10 +30,23 @@ final class PartidaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($partida);
-            $entityManager->flush();
+            try {
+                $entityManager->persist($partida);
+                $entityManager->flush();
+                $this->addFlash('success', 'Partida creada exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear la partida: ' . $e->getMessage());
+                return $this->render('partida/new.html.twig', [
+                    'partida' => $partida,
+                    'form' => $form,
+                ]);
+            }
 
             return $this->redirectToRoute('app_partida_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('partida/new.html.twig', [
@@ -57,9 +70,22 @@ final class PartidaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'Partida actualizada exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar la partida: ' . $e->getMessage());
+                return $this->render('partida/edit.html.twig', [
+                    'partida' => $partida,
+                    'form' => $form,
+                ]);
+            }
 
             return $this->redirectToRoute('app_partida_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('partida/edit.html.twig', [
@@ -72,8 +98,15 @@ final class PartidaController extends AbstractController
     public function delete(Request $request, Partida $partida, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$partida->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($partida);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($partida);
+                $entityManager->flush();
+                $this->addFlash('success', 'Partida eliminada exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar la partida: ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Token CSRF inválido');
         }
 
         return $this->redirectToRoute('app_partida_index', [], Response::HTTP_SEE_OTHER);

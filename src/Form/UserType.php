@@ -17,34 +17,38 @@ class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isEdit = $options['data']->getId() !== null;
+
         $builder
             ->add('email', EmailType::class, [
                 'required' => true,
             ])
             ->add('roles', ChoiceType::class, [
+                'label' => 'Rol',
                 'choices' => [
                     'Usuario' => 'ROLE_USER',
                     'Administrador' => 'ROLE_ADMIN',
                 ],
-                'multiple' => true,
+                'multiple' => false,
                 'expanded' => false,
+                'data' => 'ROLE_USER',
+                'mapped' => false,
             ])
-            ->add('nombre', TextType::class)
-            ->add('token', PasswordType::class, [
-                'required' => false,
-                'mapped' => true,
-            ])
-            ->add('fechaRegistro', DateTimeType::class, [
-                'widget' => 'single_text',
-                'required' => false,
-            ])
-            ->add('estado', CheckboxType::class, [
-                'required' => false,
-            ])
-            ->add('rol', TextType::class, [
-                'required' => false,
-            ])
-        ;
+            ->add('nombre', TextType::class);
+
+        // Only add password field when creating a new user, not when editing
+        if (!$isEdit) {
+            $builder->add('plainPassword', PasswordType::class, [
+                'label' => 'Contraseña',
+                'required' => true,
+                'mapped' => false,
+                'attr' => ['autocomplete' => 'new-password'],
+            ]);
+        }
+
+        $builder->add('estado', CheckboxType::class, [
+            'required' => false,
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

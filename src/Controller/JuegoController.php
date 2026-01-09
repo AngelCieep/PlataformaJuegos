@@ -24,17 +24,40 @@ final class JuegoController extends AbstractController
     }
 
     #[Route('/new', name: 'app_juego_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, JuegoRepository $juegoRepository): Response
     {
         $juego = new Juego();
         $form = $this->createForm(JuegoType::class, $juego);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($juego);
-            $entityManager->flush();
+            // Check if game name already exists
+            $existingJuego = $juegoRepository->findOneBy(['nombre' => $juego->getNombre()]);
+            if ($existingJuego) {
+                $this->addFlash('error', 'Ya existe un juego con ese nombre');
+                return $this->render('juego/new.html.twig', [
+                    'juego' => $juego,
+                    'form' => $form,
+                ]);
+            }
+
+            try {
+                $entityManager->persist($juego);
+                $entityManager->flush();
+                $this->addFlash('success', 'Juego creado exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear el juego: ' . $e->getMessage());
+                return $this->render('juego/new.html.twig', [
+                    'juego' => $juego,
+                    'form' => $form,
+                ]);
+            }
 
             return $this->redirectToRoute('app_juego_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('juego/new.html.twig', [
@@ -66,15 +89,38 @@ final class JuegoController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_juego_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Juego $juego, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Juego $juego, EntityManagerInterface $entityManager, JuegoRepository $juegoRepository): Response
     {
         $form = $this->createForm(JuegoType::class, $juego);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            // Check if game name is being changed and already exists
+            $existingJuego = $juegoRepository->findOneBy(['nombre' => $juego->getNombre()]);
+            if ($existingJuego && $existingJuego->getId() !== $juego->getId()) {
+                $this->addFlash('error', 'Ya existe otro juego con ese nombre');
+                return $this->render('juego/edit.html.twig', [
+                    'juego' => $juego,
+                    'form' => $form,
+                ]);
+            }
+
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'Juego actualizado exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar el juego: ' . $e->getMessage());
+                return $this->render('juego/edit.html.twig', [
+                    'juego' => $juego,
+                    'form' => $form,
+                ]);
+            }
 
             return $this->redirectToRoute('app_juego_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('juego/edit.html.twig', [
@@ -87,8 +133,15 @@ final class JuegoController extends AbstractController
     public function delete(Request $request, Juego $juego, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$juego->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($juego);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($juego);
+                $entityManager->flush();
+                $this->addFlash('success', 'Juego eliminado exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar el juego: ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Token CSRF inválido');
         }
 
         return $this->redirectToRoute('app_juego_index', [], Response::HTTP_SEE_OTHER);

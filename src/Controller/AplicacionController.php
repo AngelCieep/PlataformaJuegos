@@ -24,17 +24,40 @@ final class AplicacionController extends AbstractController
     }
 
     #[Route('/new', name: 'app_aplicacion_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, AplicacionRepository $aplicacionRepository): Response
     {
         $aplicacion = new Aplicacion();
         $form = $this->createForm(AplicacionType::class, $aplicacion);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($aplicacion);
-            $entityManager->flush();
+            // Check if application name already exists
+            $existingAplicacion = $aplicacionRepository->findOneBy(['nombre' => $aplicacion->getNombre()]);
+            if ($existingAplicacion) {
+                $this->addFlash('error', 'Ya existe una aplicación con ese nombre');
+                return $this->render('aplicacion/new.html.twig', [
+                    'aplicacion' => $aplicacion,
+                    'form' => $form,
+                ]);
+            }
+
+            try {
+                $entityManager->persist($aplicacion);
+                $entityManager->flush();
+                $this->addFlash('success', 'Aplicación creada exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear la aplicación: ' . $e->getMessage());
+                return $this->render('aplicacion/new.html.twig', [
+                    'aplicacion' => $aplicacion,
+                    'form' => $form,
+                ]);
+            }
 
             return $this->redirectToRoute('app_aplicacion_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('aplicacion/new.html.twig', [
@@ -66,15 +89,38 @@ final class AplicacionController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_aplicacion_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Aplicacion $aplicacion, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Aplicacion $aplicacion, EntityManagerInterface $entityManager, AplicacionRepository $aplicacionRepository): Response
     {
         $form = $this->createForm(AplicacionType::class, $aplicacion);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            // Check if application name is being changed and already exists
+            $existingAplicacion = $aplicacionRepository->findOneBy(['nombre' => $aplicacion->getNombre()]);
+            if ($existingAplicacion && $existingAplicacion->getId() !== $aplicacion->getId()) {
+                $this->addFlash('error', 'Ya existe otra aplicación con ese nombre');
+                return $this->render('aplicacion/edit.html.twig', [
+                    'aplicacion' => $aplicacion,
+                    'form' => $form,
+                ]);
+            }
+
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'Aplicación actualizada exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar la aplicación: ' . $e->getMessage());
+                return $this->render('aplicacion/edit.html.twig', [
+                    'aplicacion' => $aplicacion,
+                    'form' => $form,
+                ]);
+            }
 
             return $this->redirectToRoute('app_aplicacion_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('aplicacion/edit.html.twig', [
@@ -87,8 +133,15 @@ final class AplicacionController extends AbstractController
     public function delete(Request $request, Aplicacion $aplicacion, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$aplicacion->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($aplicacion);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($aplicacion);
+                $entityManager->flush();
+                $this->addFlash('success', 'Aplicación eliminada exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar la aplicación: ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Token CSRF inválido');
         }
 
         return $this->redirectToRoute('app_aplicacion_index', [], Response::HTTP_SEE_OTHER);

@@ -66,24 +66,24 @@
     </div>
     
     <div class="form-group">
+        {{ form_label(form.roles) }}
+        {{ form_widget(form.roles, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.roles) }}
+    </div>
+    
+    <div class="form-group">
         {{ form_label(form.nombre) }}
         {{ form_widget(form.nombre, {'attr': {'class': 'form-control', 'placeholder': 'Nombre del usuario'}}) }}
         {{ form_errors(form.nombre) }}
     </div>
     
-    {% if form.token is defined %}
+    {% if form.plainPassword is defined %}
     <div class="form-group">
-        {{ form_label(form.token) }}
-        {{ form_widget(form.token, {'attr': {'class': 'form-control', 'placeholder': 'Contraseña'}}) }}
-        {{ form_errors(form.token) }}
+        {{ form_label(form.plainPassword) }}
+        {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Ingrese la contraseña'}}) }}
+        {{ form_errors(form.plainPassword) }}
     </div>
     {% endif %}
-    
-    <div class="form-group">
-        {{ form_label(form.roles) }}
-        {{ form_widget(form.roles, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.roles) }}
-    </div>
     
     {% if form.estado is defined %}
     <div class="form-check">

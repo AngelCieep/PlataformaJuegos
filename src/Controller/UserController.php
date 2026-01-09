@@ -25,24 +25,60 @@ final class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash password if provided
-            $plain = $form->get('token')->getData();
-            if (!empty($plain)) {
-                $hashed = $passwordHasher->hashPassword($user, $plain);
-                $user->setToken($hashed);
+            // Check if email already exists
+            $existingUser = $userRepository->findOneBy(['email' => $user->getEmail()]);
+            if ($existingUser) {
+                $this->addFlash('error', 'El email ya está registrado en el sistema');
+                return $this->render('user/new.html.twig', [
+                    'user' => $user,
+                    'form' => $form->createView(),
+                ]);
             }
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+            // Hash the plain password
+            $plainPassword = $form->get('plainPassword')->getData();
+            if (!empty($plainPassword)) {
+                $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                $user->setToken($hashedPassword);
+            } else {
+                $this->addFlash('error', 'La contraseña es obligatoria');
+                return $this->render('user/new.html.twig', [
+                    'user' => $user,
+                    'form' => $form->createView(),
+                ]);
+            }
+
+            // Set the selected role
+            $selectedRole = $form->get('roles')->getData();
+            $user->setRoles([$selectedRole]);
+
+            // Set registration date to current datetime
+            $user->setFechaRegistro(new \DateTimeImmutable());
+
+            try {
+                $entityManager->persist($user);
+                $entityManager->flush();
+                $this->addFlash('success', 'Usuario creado exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear el usuario: ' . $e->getMessage());
+                return $this->render('user/new.html.twig', [
+                    'user' => $user,
+                    'form' => $form->createView(),
+                ]);
+            }
 
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('user/new.html.twig', [
@@ -87,22 +123,38 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserRepository $userRepository): Response
     {
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // If a new password was provided, hash and set it
-            $plain = $form->get('token')->getData();
-            if (!empty($plain)) {
-                $hashed = $passwordHasher->hashPassword($user, $plain);
-                $user->setToken($hashed);
+            // Check if email is being changed and already exists
+            $existingUser = $userRepository->findOneBy(['email' => $user->getEmail()]);
+            if ($existingUser && $existingUser->getId() !== $user->getId()) {
+                $this->addFlash('error', 'El email ya está registrado por otro usuario');
+                return $this->render('user/edit.html.twig', [
+                    'user' => $user,
+                    'form' => $form->createView(),
+                ]);
             }
 
-            $entityManager->flush();
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'Usuario actualizado exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar el usuario: ' . $e->getMessage());
+                return $this->render('user/edit.html.twig', [
+                    'user' => $user,
+                    'form' => $form->createView(),
+                ]);
+            }
 
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Por favor, complete todos los campos requeridos correctamente');
         }
 
         return $this->render('user/edit.html.twig', [
@@ -115,8 +167,15 @@ final class UserController extends AbstractController
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($user);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($user);
+                $entityManager->flush();
+                $this->addFlash('success', 'Usuario eliminado exitosamente');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar el usuario: ' . $e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Token CSRF inválido');
         }
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);

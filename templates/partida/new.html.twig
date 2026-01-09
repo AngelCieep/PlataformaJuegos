@@ -36,4 +36,28 @@
         </a>
     </div>
 </div>
+
+<script>
+{% for type, messages in app.flashes %}
+    {% for message in messages %}
+        {% if type == 'success' %}
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ message }}',
+                confirmButtonColor: '#1B4079',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        {% elseif type == 'error' %}
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ message }}',
+                confirmButtonColor: '#1B4079'
+            });
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+</script>
 {% endblock %}
