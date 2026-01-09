@@ -1,0 +1,770 @@
+{% extends '_navbar.html.twig' %}
+
+{% block title %}Documentación API - ScoreNest{% endblock %}
+
+{% block page_content %}
+<style>
+    html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Arial', sans-serif;
+    }
+
+    .api-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: calc(100vh - 56px);
+        padding: 30px 20px;
+        overflow-y: auto;
+    }
+
+    .api-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .api-header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px 40px;
+        margin-bottom: 30px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        animation: fadeInDown 0.6s ease-out;
+    }
+
+    .api-header h1 {
+        color: #667eea;
+        font-size: 2.5rem;
+        margin: 0 0 10px 0;
+        font-weight: 700;
+    }
+
+    .api-header p {
+        color: #666;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .endpoint-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeInUp 0.6s ease-out;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .endpoint-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .endpoint-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 50px rgba(102, 126, 234, 0.4);
+        border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+
+    .endpoint-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .method-badge {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .method-badge:hover {
+        transform: scale(1.05);
+    }
+
+    .method-get {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+
+    .method-post {
+        background: linear-gradient(135deg, #E94057 0%, #F27121 100%);
+        color: white;
+    }
+
+    .endpoint-url {
+        font-family: 'Courier New', monospace;
+        font-size: 1.3rem;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .endpoint-description {
+        color: #666;
+        margin-bottom: 20px;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .section-title {
+        color: #667eea;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 25px 0 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section-title i {
+        font-size: 1.3rem;
+    }
+
+    .code-block {
+        background: linear-gradient(145deg, #1e1e1e 0%, #2d2d2d 100%);
+        color: #f8f8f2;
+        padding: 20px;
+        border-radius: 12px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        margin: 15px 0;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .code-block:hover {
+        box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+        transform: translateY(-2px);
+    }
+
+    .response-ok {
+        border-left: 5px solid #11998e;
+        padding: 20px;
+        margin: 20px 0;
+        background: linear-gradient(135deg, rgba(17, 153, 142, 0.05) 0%, rgba(56, 239, 125, 0.05) 100%);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .response-ok:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.2);
+    }
+
+    .response-error {
+        border-left: 5px solid #E94057;
+        padding: 20px;
+        margin: 20px 0;
+        background: linear-gradient(135deg, rgba(233, 64, 87, 0.05) 0%, rgba(242, 113, 33, 0.05) 100%);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .response-title {
+        font-weight: 700;
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+
+    .response-ok .response-title {
+        color: #11998e;
+    }
+
+    .response-error .response-title {
+        color: #E94057;
+    }
+
+    .error-toggle {
+        cursor: pointer;
+        background: linear-gradient(135deg, rgba(233, 64, 87, 0.1) 0%, rgba(242, 113, 33, 0.1) 100%);
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin: 10px 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 700;
+        color: #E94057;
+        border: 2px solid rgba(233, 64, 87, 0.2);
+    }
+
+    .error-toggle:hover {
+        background: linear-gradient(135deg, rgba(233, 64, 87, 0.2) 0%, rgba(242, 113, 33, 0.2) 100%);
+        transform: translateX(5px);
+        border-color: rgba(233, 64, 87, 0.4);
+        box-shadow: 0 5px 15px rgba(233, 64, 87, 0.2);
+    }
+
+    .error-toggle i {
+        transition: transform 0.3s ease;
+    }
+
+    .error-toggle.collapsed i {
+        transform: rotate(-90deg);
+    }
+
+    .error-content {
+        margin-top: 15px;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(233, 64, 87, 0.1);
+    }
+
+    .error-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 10px;
+        border: 1px solid rgba(233, 64, 87, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .error-item:hover {
+        background: rgba(255, 255, 255, 0.6);
+        transform: translateX(3px);
+    }
+
+    .error-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .error-item strong {
+        color: #E94057;
+        display: block;
+        margin-bottom: 10px;
+        font-size: 1rem;
+    }
+
+    .notes-section {
+        background: linear-gradient(135deg, rgba(255, 211, 102, 0.2) 0%, rgba(255, 179, 71, 0.15) 100%);
+        border: 2px solid rgba(255, 209, 102, 0.5);
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 30px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .notes-section:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 50px rgba(255, 209, 102, 0.3);
+    }
+
+    .notes-section h3 {
+        color: #d97706;
+        margin: 0 0 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .notes-section ul {
+        color: #555;
+        line-height: 2;
+        font-size: 1rem;
+    }
+
+    .notes-section ul li {
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .notes-section ul li:hover {
+        transform: translateX(5px);
+        color: #333;
+    }
+
+    .notes-section code {
+        background: rgba(102, 126, 234, 0.15);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .endpoint-card:nth-child(1) { animation-delay: 0.1s; }
+    .endpoint-card:nth-child(2) { animation-delay: 0.2s; }
+    .endpoint-card:nth-child(3) { animation-delay: 0.3s; }
+    .endpoint-card:nth-child(4) { animation-delay: 0.4s; }
+    .endpoint-card:nth-child(5) { animation-delay: 0.5s; }
+    .endpoint-card:nth-child(6) { animation-delay: 0.6s; }
+
+    @media (max-width: 768px) {
+        .api-header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .endpoint-url {
+            font-size: 1rem;
+        }
+        
+        .code-block {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<div class="api-wrapper">
+    <div class="api-container">
+        <div class="api-header">
+            <h1><i class="bi bi-code-square"></i> Documentación API - ScoreNest</h1>
+            <p>Guía completa de endpoints disponibles para integración</p>
+        </div>
+
+        <!-- Endpoint 1: Prueba -->
+        <div class="endpoint-card">
+            <div class="endpoint-header">
+                <span class="method-badge method-get">GET</span>
+                <span class="endpoint-url">/api/prueba</span>
+            </div>
+            <p class="endpoint-description">Prueba básica de conexión a la API</p>
+            
+            <div class="section-title"><i class="bi bi-check-circle"></i> Respuesta Exitosa (200)</div>
+            <div class="code-block">{ "message": "API is working" }</div>
+        </div>
+
+        <!-- Endpoint 2: Conexión -->
+        <div class="endpoint-card">
+            <div class="endpoint-header">
+                <span class="method-badge method-post">POST</span>
+                <span class="endpoint-url">/api/conexion</span>
+            </div>
+            <p class="endpoint-description">Validar API-KEY y obtener token de acceso</p>
+            
+            <div class="section-title"><i class="bi bi-send"></i> Body Request</div>
+            <div class="code-block">{ "api_key": "tu_api_key_aqui" }</div>
+            
+            <div class="response-ok">
+                <div class="response-title">✓ Respuesta Exitosa (200)</div>
+                <div class="code-block">{
+  "success": true,
+  "message": "Conexión exitosa",
+  "data": {
+    "access_token": "a1b2c3d4e5f6g7h8i9j0..."
+  }
+}</div>
+            </div>
+            
+            <div class="response-error">
+                <div class="error-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#errors-conexion" aria-expanded="false">
+                    <span>✗ Errores Posibles</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="collapse" id="errors-conexion">
+                    <div class="error-content">
+                        <div class="error-item">
+                            <strong>400 - API-KEY no proporcionada</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "API-KEY no proporcionada",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>401 - API-KEY inválida o inactiva</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endpoint 3: Login -->
+        <div class="endpoint-card">
+            <div class="endpoint-header">
+                <span class="method-badge method-post">POST</span>
+                <span class="endpoint-url">/api/login</span>
+            </div>
+            <p class="endpoint-description">Login de usuario y obtención de token con listado de juegos</p>
+            
+            <div class="section-title"><i class="bi bi-send"></i> Body Request</div>
+            <div class="code-block">{
+  "api_key": "tu_api_key_aqui",
+  "usuario": "usuario@email.com",
+  "password": "contraseña123"
+}</div>
+            
+            <div class="response-ok">
+                <div class="response-title">✓ Respuesta Exitosa (200)</div>
+                <div class="code-block">{
+  "success": true,
+  "message": "Usuario válido",
+  "data": {
+    "usuario_token": "a1b2c3d4e5f6g7h8i9j0...",
+    "Listado juegos": [
+      { "juego": "Tetris", "Partidas": "5", "token": "token_juego_tetris" },
+      { "juego": "Snake", "Partidas": "3", "token": "token_juego_snake" }
+    ]
+  }
+}</div>
+            </div>
+            
+            <div class="response-error">
+                <div class="error-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#errors-login" aria-expanded="false">
+                    <span>✗ Errores Posibles</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="collapse" id="errors-login">
+                    <div class="error-content">
+                        <div class="error-item">
+                            <strong>400 - API-KEY no proporcionada</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>401 - API-KEY inválida</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>400 - Faltan usuario o password</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Usuario o contraseña no proporcionados",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>401 - Usuario o contraseña incorrectos</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Usuario o contraseña incorrectos",
+  "data": ""
+}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endpoint 4: Registro -->
+        <div class="endpoint-card">
+            <div class="endpoint-header">
+                <span class="method-badge method-post">POST</span>
+                <span class="endpoint-url">/api/registro</span>
+            </div>
+            <p class="endpoint-description">Registro de nuevo usuario</p>
+            
+            <div class="section-title"><i class="bi bi-send"></i> Body Request</div>
+            <div class="code-block">{
+  "api_key": "tu_api_key_aqui",
+  "nombre": "Juan Pérez",
+  "email": "juan.perez@email.com",
+  "password": "contraseña123"
+}</div>
+            
+            <div class="response-ok">
+                <div class="response-title">✓ Respuesta Exitosa (201)</div>
+                <div class="code-block">{
+  "success": true,
+  "message": "Usuario registrado",
+  "data": {
+    "usuario_token": "a1b2c3d4e5f6g7h8i9j0...",
+    "Listado juegos": [
+      { "juego": "Tetris", "Partidas": "0", "token": "token_juego_tetris" },
+      { "juego": "Snake", "Partidas": "0", "token": "token_juego_snake" }
+    ]
+  }
+}</div>
+            </div>
+            
+            <div class="response-error">
+                <div class="error-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#errors-registro" aria-expanded="false">
+                    <span>✗ Errores Posibles</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="collapse" id="errors-registro">
+                    <div class="error-content">
+                        <div class="error-item">
+                            <strong>400 - API-KEY no proporcionada</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>401 - API-KEY inválida</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>400 - Faltan datos obligatorios</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error en el registro del nuevo usuario",
+  "data": "Faltan datos obligatorios (nombre, email, password)"
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>409 - Usuario ya existe</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error en el registro del nuevo usuario",
+  "data": "La cuenta ya está dada de alta"
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>500 - Error al guardar en base de datos</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error en el registro del nuevo usuario",
+  "data": "Error al guardar en la base de datos"
+}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endpoint 5: Juego -->
+        <div class="endpoint-card">
+            <div class="endpoint-header">
+                <span class="method-badge method-post">POST</span>
+                <span class="endpoint-url">/api/juego</span>
+            </div>
+            <p class="endpoint-description">Obtener información del juego y ranking TOP 10</p>
+            
+            <div class="section-title"><i class="bi bi-send"></i> Body Request</div>
+            <div class="code-block">{
+  "api_key": "tu_api_key_aqui",
+  "token_juego": "token_juego_tetris",
+  "token_usuario": "usuario@email.com"  // Opcional
+}</div>
+            
+            <div class="response-ok">
+                <div class="response-title">✓ Respuesta Exitosa (200)</div>
+                <div class="code-block">{
+  "success": true,
+  "message": "Listado de resultados del juego",
+  "data": {
+    "Puntos usuario": "1500",
+    "Listado jugadores": [
+      { "jugador": "María García", "Puntos": "2500" },
+      { "jugador": "Juan Pérez", "Puntos": "1500" },
+      { "jugador": "Ana López", "Puntos": "1200" }
+    ]
+  }
+}</div>
+            </div>
+            
+            <div class="response-error">
+                <div class="error-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#errors-juego" aria-expanded="false">
+                    <span>✗ Errores Posibles</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="collapse" id="errors-juego">
+                    <div class="error-content">
+                        <div class="error-item">
+                            <strong>400 - API-KEY no proporcionada</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>401 - API-KEY inválida</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>400 - Falta token_juego</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error, faltan datos requeridos",
+  "data": "Se requiere token_juego"
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>404 - Juego no encontrado o inactivo</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error, no hay registro de ese juego",
+  "data": "Error en el registro del juego"
+}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endpoint 6: Guardar Partida -->
+        <div class="endpoint-card">
+            <div class="endpoint-header">
+                <span class="method-badge method-post">POST</span>
+                <span class="endpoint-url">/api/juego/guardar</span>
+            </div>
+            <p class="endpoint-description">Guardar partida finalizada y obtener ranking actualizado</p>
+            
+            <div class="section-title"><i class="bi bi-send"></i> Body Request</div>
+            <div class="code-block">{
+  "api_key": "tu_api_key_aqui",
+  "token_usuario": "usuario@email.com",
+  "token_juego": "token_juego_tetris",
+  "puntos": 1850
+}</div>
+            
+            <div class="response-ok">
+                <div class="response-title">✓ Respuesta Exitosa (200)</div>
+                <div class="code-block">{
+  "success": true,
+  "message": "Listado de resultados del juego",
+  "data": {
+    "usuario_token": "usuario@email.com",
+    "Listado jugadores": [
+      { "jugador": "María García", "Puntos": "2500" },
+      { "jugador": "Juan Pérez", "Puntos": "1850" },
+      { "jugador": "Ana López", "Puntos": "1200" }
+    ]
+  }
+}</div>
+            </div>
+            
+            <div class="response-error">
+                <div class="error-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#errors-guardar" aria-expanded="false">
+                    <span>✗ Errores Posibles</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="collapse" id="errors-guardar">
+                    <div class="error-content">
+                        <div class="error-item">
+                            <strong>400 - API-KEY no proporcionada</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>401 - API-KEY inválida</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Conexión no permitida, API-KEY inválida",
+  "data": ""
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>400 - Faltan datos requeridos</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error, faltan datos requeridos",
+  "data": "Se requieren token_usuario, token_juego y puntos"
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>404 - Juego no encontrado</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error, no hay registro de ese juego",
+  "data": "Error en el registro del juego"
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>404 - Usuario no encontrado</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error, usuario no encontrado",
+  "data": "No se pudo identificar al usuario con ese email"
+}</div>
+                        </div>
+                        <div class="error-item">
+                            <strong>500 - Error al guardar</strong>
+                            <div class="code-block">{
+  "success": false,
+  "message": "Error al guardar la partida",
+  "data": "Error en la base de datos"
+}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notas Importantes -->
+        <div class="notes-section">
+            <h3><i class="bi bi-info-circle-fill"></i> Notas Importantes</h3>
+            <ul>
+                <li><strong>Content-Type:</strong> Todos los endpoints POST requieren el header <code>Content-Type: application/json</code></li>
+                <li><strong>API-KEY:</strong> Debe ser válida y la aplicación debe estar activa (estado = true)</li>
+                <li><strong>Token de usuario:</strong> En login y registro, se usa el email del usuario como token_usuario</li>
+                <li><strong>Puntos:</strong> El sistema guarda todas las partidas pero muestra solo la mejor puntuación en rankings</li>
+                <li><strong>Ranking:</strong> Siempre devuelve TOP 10 ordenado por mejor puntuación</li>
+                <li><strong>Base URL:</strong> Todos los endpoints deben ser precedidos por la URL base de tu servidor</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

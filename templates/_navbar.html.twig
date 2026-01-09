@@ -34,6 +34,13 @@
                             </a>
                         </li>
 
+                        <!-- Enlace a documentación API -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_api_doc') }}">
+                                <i class="bi bi-code-square"></i> API
+                            </a>
+                        </li>
+
                         {% if is_granted('ROLE_ADMIN') %}
                             <!-- Enlace al panel de admin -->
                             <li class="nav-item">
