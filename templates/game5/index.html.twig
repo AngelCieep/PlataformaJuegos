@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Memory - Parejas{% endblock %}
+
+{% block body %}
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg,#ff9a9e 0%,#fecfef 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px }
+    .top-nav { position:absolute; top:14px; left:14px; display:flex; gap:8px; flex-wrap:wrap }
+    .nav-btn{ background:rgba(255,255,255,0.16); color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,0.25)}
+    .game-container{ width:100%; max-width:900px; background:#fff; border-radius:16px; padding:24px; box-shadow:0 20px 50px rgba(0,0,0,0.12); text-align:center }
+    h1{ color:#ff5e62; margin-bottom:12px }
+    .grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:12px; max-width:720px; margin:12px auto }
+    .card{ background:#f7f7fb; border-radius:10px; height:90px; display:flex; align-items:center; justify-content:center; font-size:28px; cursor:pointer; user-select:none; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .card.flipped{ background:linear-gradient(135deg,#ff9a9e,#fecfef); color:#fff; }
+    .controls{ margin-top:14px }
+    .btn{ background:linear-gradient(135deg,#ff9966 0%,#ff5e62 100%); color:#fff; padding:10px 18px; border-radius:20px; border:none; font-weight:700; cursor:pointer }
+    .info{ display:flex; gap:12px; justify-content:center; margin-bottom:8px }
+    .info div{ background:#f8f9fa; padding:8px 12px; border-radius:10px }
+    @media (max-width:700px){ .grid{ grid-template-columns:repeat(4,1fr) } }
+    @media (max-width:420px){ .grid{ grid-template-columns:repeat(3,1fr) } .card{ height:64px; font-size:20px } }
+</style>
+
+<div class="top-nav">
+    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
+    <a class="nav-btn" href="{{ path('app_game1') }}">Juego 1</a>
+    <a class="nav-btn" href="{{ path('app_game2') }}">Juego 2</a>
+    <a class="nav-btn" href="{{ path('app_game3') }}">Juego 3</a>
+    <a class="nav-btn" href="{{ path('app_game4') }}">Juego 4</a>
+    <a class="nav-btn" href="{{ path('app_game5') }}">Juego 5</a>
+    <a class="nav-btn" href="{{ path('app_game6') }}">Juego 6</a>
+</div>
+
+<div class="game-container">
+    <h1>🃏 Memory — Encuentra las parejas</h1>
+    <div class="info">
+        <div>Puntos: <span id="score">0</span></div>
+        <div>Intentos: <span id="tries">0</span></div>
+        <div>Parejas encontradas: <span id="found">0</span></div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="controls">
+        <button class="btn" id="startBtn">Reiniciar</button>
+    </div>
+</div>
+
+<script>
+const gridEl = document.getElementById('grid');
+const scoreEl = document.getElementById('score');
+const triesEl = document.getElementById('tries');
+const foundEl = document.getElementById('found');
+const startBtn = document.getElementById('startBtn');
+
+let cards = [];
+let first = null;
+let second = null;
+let lock = false;
+let score = 0;
+let tries = 0;
+let found = 0;
+
+function makeDeck(pairs = 9){
+    const symbols = ['🍎','🍌','🍇','🍒','🍋','🍉','🍓','🥝','🍍','🍑','🍐','🥥','🍊','🍈','🥭'];
+    const used = symbols.slice(0,pairs);
+    let arr = used.concat(used).map((v,i)=>({id:i, val:v, matched:false}));
+    // shuffle
+    for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}
+    return arr;
+}
+
+function render(){
+    gridEl.innerHTML='';
+    cards.forEach((c,idx)=>{
+        const d = document.createElement('div');
+        d.className='card' + (c.flipped||c.matched? ' flipped':'');
+        d.dataset.index = idx;
+        d.innerText = c.flipped || c.matched ? c.val : '';
+        d.onclick = () => flip(idx);
+        gridEl.appendChild(d);
+    });
+    scoreEl.textContent = score;
+    triesEl.textContent = tries;
+    foundEl.textContent = found;
+}
+
+function flip(i){
+    if (lock) return;
+    const c = cards[i];
+    if (c.matched || c.flipped) return;
+    c.flipped = true;
+    if (!first) { first = {i,c}; render(); return; }
+    second = {i,c}; render();
+    lock = true;
+    tries++;
+    if (first.c.val === second.c.val){
+        first.c.matched = true; second.c.matched = true; score += 10; found++; resetTurn();
+    } else {
+        score = Math.max(0, score-2);
+        setTimeout(()=>{ first.c.flipped=false; second.c.flipped=false; resetTurn(); }, 700);
+    }
+}
+
+function resetTurn(){ first = null; second = null; lock = false; render(); }
+
+function start(){
+    cards = makeDeck(9); // 18 cards
+    score = 0; tries = 0; found = 0; first = null; second = null; lock = false; render();
+}
+
+startBtn.addEventListener('click', start);
+start();
+</script>
+
+{% endblock %}

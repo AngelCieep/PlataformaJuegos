@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Simon dice{% endblock %}
+
+{% block body %}
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px }
+    .top-nav { position:absolute; top:14px; left:14px; display:flex; gap:8px; flex-wrap:wrap }
+    .nav-btn{ background:rgba(255,255,255,0.16); color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,0.25)}
+    .game-container{ width:100%; max-width:700px; background:#fff; border-radius:16px; padding:24px; box-shadow:0 20px 50px rgba(0,0,0,0.12); text-align:center }
+    h1{ color:#2274A5; margin-bottom:12px }
+    .board{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; max-width:480px; margin:12px auto }
+    .pad{ height:180px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:34px; color:#fff; cursor:pointer; user-select:none; box-shadow:0 8px 20px rgba(0,0,0,0.08) }
+    .pad.green{ background:#2ecc71 }
+    .pad.red{ background:#e74c3c }
+    .pad.yellow{ background:#f1c40f; color:#333 }
+    .pad.blue{ background:#3498db }
+    .controls{ margin-top:16px }
+    .btn{ background:linear-gradient(135deg,#ff9966 0%,#ff5e62 100%); color:#fff; padding:10px 18px; border-radius:20px; border:none; font-weight:700; cursor:pointer }
+    .info{ display:flex; gap:12px; justify-content:center; margin-bottom:8px }
+    .info div{ background:#f8f9fa; padding:8px 12px; border-radius:10px }
+    @media (max-width:520px){ .pad{ height:120px; font-size:24px } }
+</style>
+
+<div class="top-nav">
+    <a class="nav-btn" href="{{ path('app_home') }}">← Inicio</a>
+    <a class="nav-btn" href="{{ path('app_game1') }}">Juego 1</a>
+    <a class="nav-btn" href="{{ path('app_game2') }}">Juego 2</a>
+    <a class="nav-btn" href="{{ path('app_game3') }}">Juego 3</a>
+    <a class="nav-btn" href="{{ path('app_game4') }}">Juego 4</a>
+    <a class="nav-btn" href="{{ path('app_game5') }}">Juego 5</a>
+    <a class="nav-btn" href="{{ path('app_game6') }}">Juego 6</a>
+</div>
+
+<div class="game-container">
+    <h1>🎵 Simon — Repite la secuencia</h1>
+    <div class="info">
+        <div>Nivel: <span id="level">0</span></div>
+        <div>Mejor: <span id="best">0</span></div>
+    </div>
+    <div class="board">
+        <div class="pad green" data-color="green" id="green"></div>
+        <div class="pad red" data-color="red" id="red"></div>
+        <div class="pad yellow" data-color="yellow" id="yellow"></div>
+        <div class="pad blue" data-color="blue" id="blue"></div>
+    </div>
+    <div class="controls">
+        <button class="btn" id="startBtn">Comenzar</button>
+    </div>
+</div>
+
+<script>
+const pads = { green: document.getElementById('green'), red: document.getElementById('red'), yellow: document.getElementById('yellow'), blue: document.getElementById('blue') };
+const startBtn = document.getElementById('startBtn');
+const levelEl = document.getElementById('level');
+const bestEl = document.getElementById('best');
+
+let sequence = [];
+let player = [];
+let level = 0;
+let best = localStorage.getItem('simonBest')||0;
+bestEl.textContent = best;
+
+function randColor(){ const keys = Object.keys(pads); return keys[Math.floor(Math.random()*keys.length)]; }
+
+function flash(color){ const el = pads[color]; const original = el.style.filter; el.style.filter = 'brightness(1.25)'; setTimeout(()=> el.style.filter = original, 400); const audio = new Audio(); }
+
+async function playSequence(){
+    for(const c of sequence){ flash(c); await new Promise(r=>setTimeout(r,600)); }
+}
+
+function nextLevel(){ level++; levelEl.textContent = level; sequence.push(randColor()); player = []; playSequence(); }
+
+function reset(){ sequence=[]; player=[]; level=0; levelEl.textContent = 0; }
+
+function handlePad(color){ if(sequence.length===0) return; player.push(color); flash(color);
+    const idx = player.length-1; if(player[idx] !== sequence[idx]){ // lost
+        alert('¡Secuencia incorrecta! Nivel alcanzado: '+level);
+        best = Math.max(best, level); localStorage.setItem('simonBest', best); bestEl.textContent = best; reset(); return; }
+    if(player.length === sequence.length){ setTimeout(()=> nextLevel(), 600); }
+}
+
+Object.keys(pads).forEach(k=> pads[k].addEventListener('click', ()=> handlePad(k)));
+startBtn.addEventListener('click', ()=>{ reset(); nextLevel(); });
+</script>
+
+{% endblock %}
