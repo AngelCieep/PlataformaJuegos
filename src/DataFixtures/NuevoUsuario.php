@@ -37,5 +37,6 @@ class NuevoUsuario extends Fixture implements FixtureGroupInterface
         // Guarda el registro en la base de datos.
         $manager->persist($user);
         $manager->flush();
+        
     }
 }
