@@ -45,11 +45,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Partida::class)]
     private Collection $partidas;
 
+    /**
+     * @var Collection<int, Juego>
+     */
+    #[ORM\OneToMany(targetEntity: Juego::class, mappedBy: 'owner')]
+    private Collection $juegos;
+
+    /**
+     * @var Collection<int, Aplicacion>
+     */
+    #[ORM\OneToMany(targetEntity: Aplicacion::class, mappedBy: 'owner')]
+    private Collection $aplicacions;
+
     public function __construct()
     {
         $this->fechaRegistro = new \DateTimeImmutable();
         $this->partidas = new ArrayCollection();
         $this->estado = true;
+        $this->juegos = new ArrayCollection();
+        $this->aplicacions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -204,6 +218,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $partida->setUsuario(null);
             }
         }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Juego>
+     */
+    public function getJuegos(): Collection
+    {
+        return $this->juegos;
+    }
+
+    public function addJuego(Juego $juego): static
+    {
+        if (!$this->juegos->contains($juego)) {
+            $this->juegos->add($juego);
+            $juego->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJuego(Juego $juego): static
+    {
+        if ($this->juegos->removeElement($juego)) {
+            // set the owning side to null (unless already changed)
+            if ($juego->getOwner() === $this) {
+                $juego->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Aplicacion>
+     */
+    public function getAplicacions(): Collection
+    {
+        return $this->aplicacions;
+    }
+
+    public function addAplicacion(Aplicacion $aplicacion): static
+    {
+        if (!$this->aplicacions->contains($aplicacion)) {
+            $this->aplicacions->add($aplicacion);
+            $aplicacion->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAplicacion(Aplicacion $aplicacion): static
+    {
+        if ($this->aplicacions->removeElement($aplicacion)) {
+            // set the owning side to null (unless already changed)
+            if ($aplicacion->getOwner() === $this) {
+                $aplicacion->setOwner(null);
+            }
+        }
+
         return $this;
     }
 

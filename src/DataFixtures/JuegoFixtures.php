@@ -4,11 +4,12 @@ namespace App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Juego;
 use App\Entity\Aplicacion;
 
-class JuegoFixtures extends Fixture implements FixtureGroupInterface
+class JuegoFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
     public static function getGroups(): array
     {
@@ -23,7 +24,7 @@ class JuegoFixtures extends Fixture implements FixtureGroupInterface
         if (!$aplicacion) {
             // Si no existe, crear una nueva aplicación
             $aplicacion = new Aplicacion();
-            $aplicacion->setNombre('Aplicación de Prueba');
+            $aplicacion->setNombre('ScoreNest');
             $aplicacion->setApiKey('ABCDEFGHIJK1234567890');
             $aplicacion->setEstado(true);
             $manager->persist($aplicacion);
@@ -42,57 +43,54 @@ class JuegoFixtures extends Fixture implements FixtureGroupInterface
         $juegoTetris = new Juego();
         $juegoTetris->setNombre('Tetris');
         $juegoTetris->setTokenJuego('TETRIS_GAME_TOKEN_002');
-        $juegoTetris->setDescription('Juego de bloques clásico');
+        $juegoTetris->setDescription('Juego de bloques clásico. Completa líneas para ganar puntos');
         $juegoTetris->setEstado(true);
         $juegoTetris->setAplicacion($aplicacion);
         $manager->persist($juegoTetris);
 
-        // Crear juego Memory (Game3)
+        // Crear juego Tres en Raya (Game3)
+        $juegoTresRaya = new Juego();
+        $juegoTresRaya->setNombre('Tres en Raya');
+        $juegoTresRaya->setTokenJuego('TRESRAYA_GAME_TOKEN_003');
+        $juegoTresRaya->setDescription('Clásico juego de estrategia. ¡Tres en línea para ganar!');
+        $juegoTresRaya->setEstado(true);
+        $juegoTresRaya->setAplicacion($aplicacion);
+        $manager->persist($juegoTresRaya);
+
+        // Crear juego Ahorcado (Game4)
+        $juegoAhorcado = new Juego();
+        $juegoAhorcado->setNombre('Ahorcado');
+        $juegoAhorcado->setTokenJuego('AHORCADO_GAME_TOKEN_004');
+        $juegoAhorcado->setDescription('Adivina la palabra antes de que se acabe el tiempo');
+        $juegoAhorcado->setEstado(true);
+        $juegoAhorcado->setAplicacion($aplicacion);
+        $manager->persist($juegoAhorcado);
+
+        // Crear juego Memory (Game5)
         $juegoMemory = new Juego();
         $juegoMemory->setNombre('Memory Game');
-        $juegoMemory->setTokenJuego('MEMORY_GAME_TOKEN_003');
-        $juegoMemory->setDescription('Juego de memoria con cartas');
+        $juegoMemory->setTokenJuego('MEMORY_GAME_TOKEN_005');
+        $juegoMemory->setDescription('Encuentra las parejas de cartas. Pon a prueba tu memoria');
         $juegoMemory->setEstado(true);
         $juegoMemory->setAplicacion($aplicacion);
         $manager->persist($juegoMemory);
 
-        // Crear juego Pong (Game4)
-        $juegoPong = new Juego();
-        $juegoPong->setNombre('Pong');
-        $juegoPong->setTokenJuego('PONG_GAME_TOKEN_004');
-        // Juego clásico de ping pong con ranking y puntuación de usuarios.
-        $juegoPong->setDescription('Juego clásico de ping pong con ranking y puntuación de usuarios.');
-        $juegoPong->setEstado(true);
-        $juegoPong->setAplicacion($aplicacion);
-        $manager->persist($juegoPong);
-
-        // Crear juego Space Invaders (Game5)
-        $juegoSpace = new Juego();
-        $juegoSpace->setNombre('Space Invaders');
-        $juegoSpace->setTokenJuego('SPACE_GAME_TOKEN_005');
-        $juegoSpace->setDescription('Defiende la tierra de invasores espaciales');
-        $juegoSpace->setEstado(true);
-        $juegoSpace->setAplicacion($aplicacion);
-        $manager->persist($juegoSpace);
-
-        // Crear juego Breakout (Game6)
-        $juegoBreakout = new Juego();
-        $juegoBreakout->setNombre('Breakout');
-        $juegoBreakout->setTokenJuego('BREAKOUT_GAME_TOKEN_006');
-        $juegoBreakout->setDescription('Rompe todos los bloques con la pelota');
-        $juegoBreakout->setEstado(true);
-        $juegoBreakout->setAplicacion($aplicacion);
-        $manager->persist($juegoBreakout);
-
-        // Crear juego Simon (Game7) para ranking público
+        // Crear juego Simon Dice (Game6)
         $juegoSimon = new Juego();
         $juegoSimon->setNombre('Simon Dice');
-        $juegoSimon->setTokenJuego('SIMON_GAME_TOKEN_007');
-        $juegoSimon->setDescription('Simon dice - memoriza secuencias y sube niveles');
+        $juegoSimon->setTokenJuego('SIMON_GAME_TOKEN_006');
+        $juegoSimon->setDescription('Repite la secuencia de colores. ¡Cada vez más difícil!');
         $juegoSimon->setEstado(true);
         $juegoSimon->setAplicacion($aplicacion);
         $manager->persist($juegoSimon);
 
         $manager->flush();
+    }
+
+    public function getDependencies(): array
+    {
+        return [
+            AplicacionFixtures::class,
+        ];
     }
 }

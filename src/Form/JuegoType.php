@@ -22,7 +22,7 @@ class JuegoType extends AbstractType
             ])
             ->add('aplicacion', EntityType::class, [
                 'class' => Aplicacion::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
             ])
         ;
     }

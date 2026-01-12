@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Repository\JuegoRepository;
+use App\Repository\AplicacionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,8 +57,6 @@ final class AdminController extends AbstractController
                     $user->setToken($hashed);
                     $user->setEstado(true);
                     $user->setFechaRegistro(new \DateTimeImmutable());
-                    // opcional: mantener campo rol legacy
-                    $user->setRol($isAdmin ? 'ADMIN' : 'USER');
 
                     $em->persist($user);
                     $em->flush();
@@ -66,7 +66,8 @@ final class AdminController extends AbstractController
 
             if ($action === 'delete') {
                 $userId = (int) $request->request->get('user_id');
-                if ($userId === $this->getUser()?->getId()) {
+                $currentUser = $this->getUser();
+                if ($currentUser instanceof User && $userId === $currentUser->getId()) {
                     $error = 'No puedes eliminar tu propio usuario mientras estás conectado.';
                 } else {
                     $user = $userRepository->find($userId);
@@ -81,10 +82,41 @@ final class AdminController extends AbstractController
 
         $users = $userRepository->findAll();
 
-        return $this->render('admin/index.html.twig', [
+        return $this->render('admin/admin.html.twig', [
             'users' => $users,
             'error' => $error,
             'success' => $success,
+        ]);
+    }
+
+    #[Route('/owner', name: 'app_owner', methods: ['GET'])]
+    public function owner(Request $request, AplicacionRepository $aplicacionRepository): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        
+        $currentUser = $this->getUser();
+        
+        if (!$currentUser instanceof User) {
+            throw $this->createAccessDeniedException('Usuario no válido');
+        }
+
+        $apiKey = $request->query->get('api_key');
+        $searchByApiKey = false;
+        
+        // Si el usuario es admin y proporciona una apiKey, buscar por apiKey
+        if ($this->isGranted('ROLE_ADMIN') && $apiKey) {
+            $searchByApiKey = true;
+            $aplicaciones = $aplicacionRepository->findBy(['apiKey' => $apiKey]);
+        } else {
+            // De lo contrario, obtener aplicaciones del owner actual
+            $aplicaciones = $aplicacionRepository->findBy(['owner' => $currentUser]);
+        }
+
+        return $this->render('admin/owner.html.twig', [
+            'aplicaciones' => $aplicaciones,
+            'user' => $currentUser,
+            'apiKey' => $apiKey,
+            'searchByApiKey' => $searchByApiKey,
         ]);
     }
 }

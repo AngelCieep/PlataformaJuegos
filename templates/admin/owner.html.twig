@@ -1,0 +1,500 @@
+{% extends '_navbar.html.twig' %}
+
+{% block title %}Mis Aplicaciones{% endblock %}
+
+{% block page_content %}
+<style>
+    .content-wrapper {
+        background: linear-gradient(135deg, #1B4079 0%, #4D7C8A 100%);
+        min-height: calc(100vh - 56px);
+        padding: 40px 20px;
+    }
+    
+    .owner-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+    }
+    
+    .page-header h1 {
+        font-size: 2.8em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .page-header p {
+        font-size: 1.2em;
+        opacity: 0.95;
+    }
+    
+    .games-table {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow-x: auto;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    th {
+        background: #f8f9fa;
+        color: #1B4079;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 1px;
+    }
+    
+    tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+    
+    .status-badge.active {
+        background: #8FAD88;
+        color: white;
+    }
+    
+    .status-badge.inactive {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .app-badge {
+        background: #4D7C8A;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+    
+    .no-games {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+    }
+    
+    .no-games i {
+        font-size: 3em;
+        color: #ccc;
+        margin-bottom: 15px;
+    }
+    
+    .no-games h3 {
+        color: #1B4079;
+        font-size: 1.5em;
+        margin-bottom: 8px;
+    }
+
+    .no-games p {
+        margin-bottom: 8px;
+        font-size: 0.9em;
+    }
+
+    .contact-link {
+        display: inline-block;
+        background: #8FAD88;
+        color: white;
+        padding: 6px 15px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85em;
+        margin-top: 8px;
+        transition: all 0.3s;
+    }
+
+    .contact-link:hover {
+        background: #7F9C96;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-back {
+        background: #6c757d;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-back:hover {
+        background: #5a6268;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .token-code {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9em;
+        color: #1B4079;
+    }
+    
+    .search-box {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        margin-bottom: 30px;
+    }
+    
+    .search-box h3 {
+        color: #1B4079;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+    }
+    
+    .form-group {
+        flex: 1;
+    }
+    
+    .form-group label {
+        display: block;
+        color: #666;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1em;
+        transition: all 0.3s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #1B4079;
+    }
+    
+    .btn-search {
+        background: #1B4079;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-search:hover {
+        background: #4D7C8A;
+        transform: translateY(-2px);
+    }
+    
+    .btn-clear {
+        background: #6c757d;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-clear:hover {
+        background: #5a6268;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .search-info {
+        background: #8FAD88;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .search-info i {
+        font-size: 1.5em;
+    }
+    
+    .toggle-games {
+        background: #4D7C8A;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .toggle-games:hover {
+        background: #1B4079;
+        transform: translateY(-2px);
+    }
+    
+    .games-list-expandable {
+        display: none;
+        background: #f8f9fa;
+        padding: 15px;
+        margin-top: 10px;
+        border-radius: 8px;
+        border-left: 3px solid #4D7C8A;
+    }
+    
+    .games-list-expandable.show {
+        display: block;
+    }
+    
+    .game-item-row {
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .game-item-row:last-child {
+        border-bottom: none;
+    }
+    
+    .game-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .game-token {
+        font-family: 'Courier New', monospace;
+        background: white;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 0.85em;
+        color: #666;
+    }
+    
+    .ranking-link {
+        background: #8FAD88;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.85em;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .ranking-link:hover {
+        background: #7F9C96;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 2em;
+        }
+        
+        .games-table {
+            padding: 15px;
+        }
+        
+        table {
+            font-size: 0.9em;
+        }
+        
+        th, td {
+            padding: 10px 5px;
+        }
+        
+        .search-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .btn-search, .btn-clear {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="owner-container">    
+    <div class="page-header">
+        <h1><i class="bi bi-app-indicator"></i> Mis Aplicaciones</h1>
+        <p>Aplicaciones de las que eres propietario</p>
+    </div>
+    
+    {% if is_granted('ROLE_ADMIN') %}
+    <div class="search-box">
+        <h3><i class="bi bi-search"></i> Buscar Juegos por API Key</h3>
+        <form method="get" action="{{ path('app_owner') }}" class="search-form">
+            <div class="form-group">
+                <label for="api_key">API Key</label>
+                <input 
+                    type="text" 
+                    id="api_key" 
+                    name="api_key" 
+                    placeholder="Introduce la API Key..."
+                    value="{{ apiKey ?? '' }}"
+                    required
+                >
+            </div>
+            <button type="submit" class="btn-search">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+            {% if apiKey %}
+            <a href="{{ path('app_owner') }}" class="btn-clear">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </a>
+            {% endif %}
+        </form>
+    </div>
+    {% endif %}
+    
+    {% if searchByApiKey %}
+    <div class="search-info">
+        <i class="bi bi-info-circle"></i>
+        <div>
+            <strong>Búsqueda activa:</strong> Mostrando aplicaciones con API Key: <code style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 5px;">{{ apiKey }}</code>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="games-table">
+        {% if aplicaciones|length > 0 %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>API Key</th>
+                        <th>Estado</th>
+                        <th>Juegos Asociados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aplicacion in aplicaciones %}
+                        <tr>
+                            <td><strong>#{{ aplicacion.id }}</strong></td>
+                            <td>
+                                <i class="bi bi-app"></i> 
+                                <strong>{{ aplicacion.nombre }}</strong>
+                            </td>
+                            <td>
+                                <span class="token-code">{{ aplicacion.apiKey }}</span>
+                            </td>
+                            <td>
+                                {% if aplicacion.estado %}
+                                    <span class="status-badge active">
+                                        <i class="bi bi-check-circle"></i> Activo
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge inactive">
+                                        <i class="bi bi-x-circle"></i> Inactivo
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="toggle-games" onclick="toggleGames({{ aplicacion.id }})">
+                                    <i class="bi bi-chevron-down" id="icon-{{ aplicacion.id }}"></i>
+                                    {{ aplicacion.juegos|length }} juego{{ aplicacion.juegos|length != 1 ? 's' : '' }}
+                                </button>
+                                {% if aplicacion.juegos|length > 0 %}
+                                <div class="games-list-expandable" id="games-{{ aplicacion.id }}">
+                                    {% for juego in aplicacion.juegos %}
+                                    <div class="game-item-row">
+                                        <div class="game-info">
+                                            <i class="bi bi-joystick"></i>
+                                            <strong>{{ juego.nombre }}</strong>
+                                            <span class="game-token">{{ juego.tokenJuego }}</span>
+                                        </div>
+                                        <a href="{{ path('app_game_ranking_juego', {'id': juego.id}) }}" class="ranking-link">
+                                            <i class="bi bi-trophy"></i> Ver Ranking
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-games">
+                <i class="bi bi-inbox"></i>
+                <h3>No tienes aplicaciones asignadas</h3>
+                {% if is_granted('ROLE_USER') and not is_granted('ROLE_OWNER') and not is_granted('ROLE_ADMIN') %}
+                    <p>Actualmente no eres propietario de ninguna aplicación en la plataforma.</p>
+                    <p><strong>¿No tienes aplicaciones?</strong></p>
+                    <a href="mailto:admin@scorenest.com?subject=Solicitud%20de%20rol%20Owner" class="contact-link">
+                        <i class="bi bi-envelope-fill"></i> Conviértete en Owner contactándonos aquí
+                    </a>
+                {% else %}
+                    <p>Actualmente no eres propietario de ninguna aplicación en la plataforma.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleGames(id) {
+    const gamesDiv = document.getElementById('games-' + id);
+    const icon = document.getElementById('icon-' + id);
+    
+    if (gamesDiv.classList.contains('show')) {
+        gamesDiv.classList.remove('show');
+        icon.classList.remove('bi-chevron-up');
+        icon.classList.add('bi-chevron-down');
+    } else {
+        gamesDiv.classList.add('show');
+        icon.classList.remove('bi-chevron-down');
+        icon.classList.add('bi-chevron-up');
+    }
+}
+</script>
+{% endblock %}

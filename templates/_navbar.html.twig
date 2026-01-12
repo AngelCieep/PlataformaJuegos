@@ -41,6 +41,13 @@
                             </a>
                         </li>
 
+                        <!-- Enlace a mis aplicaciones (owner) -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_owner') }}">
+                                <i class="bi bi-app-indicator"></i> Mis Aplicaciones
+                            </a>
+                        </li>
+
                         {% if is_granted('ROLE_ADMIN') %}
                             <!-- Enlace al panel de admin -->
                             <li class="nav-item">
@@ -57,6 +64,12 @@
                                 <i class="bi bi-person-circle"></i> {{ app.user.nombre }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_account') }}">
+                                        <i class="bi bi-person-badge"></i> Mi Cuenta
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item text-danger" href="{{ path('app_logout') }}">
                                         <i class="bi bi-box-arrow-right"></i> Cerrar Sesión

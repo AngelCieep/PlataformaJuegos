@@ -28,6 +28,9 @@ class Aplicacion
     #[ORM\OneToMany(mappedBy: 'aplicacion', targetEntity: Juego::class)]
     private Collection $juegos;
 
+    #[ORM\ManyToOne(inversedBy: 'aplicacions')]
+    private ?User $owner = null;
+
     // AGREGAR ESTE CONSTRUCTOR
     public function __construct()
     {
@@ -111,5 +114,17 @@ class Aplicacion
     public function __toString(): string
     {
         return $this->nombre;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
+
+        return $this;
     }
 }

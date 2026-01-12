@@ -21,11 +21,11 @@ class PartidaType extends AbstractType
             ])
             ->add('usuario', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
             ])
             ->add('juego', EntityType::class, [
                 'class' => Juego::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
             ])
         ;
     }

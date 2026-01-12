@@ -1,133 +1,44 @@
 ================================================================================
-                    GUÍA DE EJECUCIÓN DE FIXTURES
-                      Plataforma de Juegos
+                    FIXTURES - COMANDOS RÁPIDOS
+                        PlataformaJuegos
 ================================================================================
 
-📋 FIXTURES DISPONIBLES:
+
+IMPORTANTE --> Añadir en el .env el texto APP_DEBUG=0 debajo de APP_ENV=dev
+
+
+📋 FIXTURES DISPONIBLES
 -------------------------
-1. AplicacionFixtures  - Crea aplicaciones de prueba (sin grupo)
-2. AppFixtures        - Usuario admin (COMENTADO - no se ejecuta)
-3. JuegoFixtures      - Crea juegos (Grupo: Juego)
-4. NuevoUsuario       - Crea usuario de prueba (Grupo: Usuario)
+1. 1NuevoUsuario.php       (Grupo: Usuario)
+   • admin@scorenest.com / 12345678 / ROLE_ADMIN
+
+2. 2AplicacionFixtures.php (Sin grupo)
+   • ScoreNest (ABCDEFGHIJK1234567890)
+   • Aplicación Inactiva (INACTIVE_API_KEY_12345)
+
+3. 3JuegoFixtures.php      (Grupo: Juego)
+   • Snake Game, Tetris, Tres en Raya, Ahorcado, Memory Game, Simon Dice
 
 
 ================================================================================
-🔄 CARGAR TODOS LOS FIXTURES DESDE CERO
+⚡ COMANDOS PRINCIPALES
 ================================================================================
 
-Este comando borra TODOS los datos existentes y recarga los fixtures:
-
-    php bin/console doctrine:fixtures:load
-
-⚠️  Te pedirá confirmación. Para evitar la confirmación:
-
-    php bin/console doctrine:fixtures:load --no-interaction
-
-Esto ejecutará:
-  ✓ AplicacionFixtures (crea 2 aplicaciones)
-  ✓ JuegoFixtures (crea 6 juegos vinculados a aplicaciones)
-  ✓ NuevoUsuario (crea usuario test@email / 12345678)
-
-
-================================================================================
-🎯 CARGAR FIXTURES DE MANERA INDEPENDIENTE
-================================================================================
-
-------------------------------------------------------------------------
-1. CARGAR SOLO USUARIOS (Grupo: Usuario)
-------------------------------------------------------------------------
-Comando:
-    php bin/console doctrine:fixtures:load --group=Usuario
-
-Borra todo y carga:
-  ✓ NuevoUsuario
-    - Email: test@email
-    - Password: 12345678
-    - Roles: ROLE_USER, ROLE_ADMIN
-
-Sin borrar datos existentes:
-    php bin/console doctrine:fixtures:load --group=Usuario --append
-
-
-------------------------------------------------------------------------
-2. CARGAR SOLO JUEGOS (Grupo: Juego)
-------------------------------------------------------------------------
-Comando:
-    php bin/console doctrine:fixtures:load --group=Juego
-
-Borra todo y carga:
-  ✓ JuegoFixtures
-    - Snake Game (Game1)
-    - Tetris (Game2)
-    - Memory Game (Game3)
-    - Pong (Game4)
-    - Space Invaders (Game5)
-    - Breakout (Game6)
-
-⚠️  IMPORTANTE: JuegoFixtures necesita una Aplicación existente.
-   Si no existe, la crea automáticamente.
-
-Sin borrar datos existentes:
-    php bin/console doctrine:fixtures:load --group=Juego --append
-
-
-------------------------------------------------------------------------
-3. CARGAR APLICACIONES (Sin grupo específico)
-------------------------------------------------------------------------
-Para cargar solo AplicacionFixtures necesitas cargar todos los fixtures
-que no tienen grupo o usar el comando completo:
-
-    php bin/console doctrine:fixtures:load
-
-Esto cargará AplicacionFixtures junto con los demás.
-
-
-================================================================================
-📦 ORDEN RECOMENDADO PARA CARGA INICIAL
-================================================================================
-
-Si quieres controlar el orden y evitar problemas de dependencias:
-
-1. Limpiar la base de datos (opcional):
-    php bin/console doctrine:schema:drop --force --full-database
-    php bin/console doctrine:schema:create
-
-2. Cargar todo desde cero:
-    php bin/console doctrine:fixtures:load --no-interaction
-
-
-================================================================================
-🔧 COMANDOS ÚTILES ADICIONALES
-================================================================================
-
-Ver estado de la base de datos:
-    php bin/console doctrine:schema:validate
-
-Actualizar schema sin perder datos:
-    php bin/console doctrine:schema:update --force
-
-Ver lista de fixtures disponibles:
-    php bin/console doctrine:fixtures:load --help
-
-
-================================================================================
-💡 NOTAS IMPORTANTES
-================================================================================
-
-• --append: Agrega datos SIN borrar los existentes
-• --no-interaction: No pide confirmación
-• --group=NOMBRE: Ejecuta solo fixtures de ese grupo
-• AppFixtures está comentado, no se ejecutará aunque lo intentes
-• JuegoFixtures crea su propia Aplicación si no existe una
-• NuevoUsuario crea: test@email / 12345678 (ROLE_ADMIN)
-
-
-================================================================================
-⚡ COMANDOS RÁPIDOS
-================================================================================
-
-# Todo desde cero sin confirmación
+# CARGAR TODO (borra todo primero)
 php bin/console doctrine:fixtures:load --no-interaction
+
+# CARGAR TODO (sin confirmación manual)
+php bin/console doctrine:fixtures:load
+
+# RESETEAR BASE DE DATOS + CARGAR TODO
+php bin/console doctrine:schema:drop --force --full-database
+php bin/console doctrine:schema:create
+php bin/console doctrine:fixtures:load --no-interaction
+
+
+================================================================================
+🎯 CARGAR POR GRUPOS
+================================================================================
 
 # Solo usuarios (borra todo)
 php bin/console doctrine:fixtures:load --group=Usuario --no-interaction
@@ -135,11 +46,47 @@ php bin/console doctrine:fixtures:load --group=Usuario --no-interaction
 # Solo juegos (borra todo)
 php bin/console doctrine:fixtures:load --group=Juego --no-interaction
 
-# Agregar usuarios sin borrar nada
-php bin/console doctrine:fixtures:load --group=Usuario --append --no-interaction
+# Usuarios sin borrar datos existentes
+php bin/console doctrine:fixtures:load --group=Usuario --append
 
-# Agregar juegos sin borrar nada
-php bin/console doctrine:fixtures:load --group=Juego --append --no-interaction
+# Juegos sin borrar datos existentes
+php bin/console doctrine:fixtures:load --group=Juego --append
+
+
+================================================================================
+🔧 COMANDOS ÚTILES
+================================================================================
+
+# Actualizar esquema BD
+php bin/console doctrine:schema:update --force
+
+# Validar esquema
+php bin/console doctrine:schema:validate
+
+# Ver migraciones pendientes
+php bin/console doctrine:migrations:list
+
+# Ejecutar migraciones
+php bin/console doctrine:migrations:migrate
+
+
+================================================================================
+📝 ORDEN RECOMENDADO PARA SETUP INICIAL
+================================================================================
+
+1. php bin/console doctrine:schema:update --force
+2. php bin/console doctrine:fixtures:load --no-interaction
+
+
+================================================================================
+💡 NOTAS
+================================================================================
+
+• --append: Añade datos sin borrar los existentes
+• --no-interaction: No pide confirmación
+• --group=NOMBRE: Solo ejecuta fixtures de ese grupo
+• Las aplicaciones se crean automáticamente si no existen
+• Usuario por defecto: admin@scorenest.com / 12345678
 
 
 ================================================================================

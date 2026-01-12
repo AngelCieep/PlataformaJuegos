@@ -1,0 +1,164 @@
+{% extends '_navbar.html.twig' %}
+
+{% block title %}Error{% endblock %}
+
+{% block page_content %}
+<style>
+    .content-wrapper {
+        background: linear-gradient(135deg, #1B4079 0%, #4D7C8A 100%);
+        min-height: calc(100vh - 56px);
+        padding: 40px 20px;
+    }
+    
+    .error-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100%;
+    }
+
+        .error-container {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-icon {
+            font-size: 70px;
+            margin-bottom: 15px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .error-title {
+            font-size: 1.8em;
+            margin: 15px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-message {
+            font-size: 1em;
+            margin: 15px 0;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+
+        .floating-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 70%;
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            top: 40%;
+            left: 70%;
+            animation-delay: 4s;
+        }
+
+        .shape:nth-child(4) {
+            width: 50px;
+            height: 50px;
+            top: 80%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-50px) rotate(180deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .error-icon {
+                font-size: 50px;
+            }
+
+            .error-title {
+                font-size: 1.5em;
+            }
+
+            .error-message {
+                font-size: 0.9em;
+            }
+        }
+</style>
+
+<div class="error-wrapper">
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h2 class="error-title">¡Algo salió mal!</h2>
+        <p class="error-message">
+            Lo sentimos, ha ocurrido un error inesperado.
+            Nuestro equipo ha sido notificado y estamos trabajando para solucionarlo.
+            Usa la barra de navegación superior para continuar navegando.
+        </p>
+    </div>
+</div>
+{% endblock %}

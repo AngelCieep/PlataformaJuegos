@@ -92,7 +92,7 @@ final class UserController extends AbstractController
     {
         $role = $request->request->get('role');
 
-        if ($role && in_array($role, ['ROLE_USER', 'ROLE_ADMIN'])) {
+        if ($role && in_array($role, ['ROLE_USER', 'ROLE_OWNER', 'ROLE_ADMIN'])) {
             $user->setRoles([$role]);
             $entityManager->flush();
         }

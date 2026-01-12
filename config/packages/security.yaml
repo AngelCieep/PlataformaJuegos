@@ -39,8 +39,13 @@ security:
         - { path: ^/api, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/juego, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/game, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/ranking, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/owner, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/.*, roles:  IS_AUTHENTICATED_FULLY }
+        - { path: ^/.*, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

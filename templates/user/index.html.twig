@@ -68,7 +68,8 @@
                 <td>
                     <form method="post" action="{{ path('app_user_update_role', {'id': user.id}) }}" style="display: inline;">
                         <select class="form-select form-select-sm" name="role" onchange="this.form.submit()" style="width: auto; display: inline-block;">
-                            <option value="ROLE_USER" {% if 'ROLE_ADMIN' not in user.roles %}selected{% endif %}>Usuario</option>
+                            <option value="ROLE_USER" {% if 'ROLE_ADMIN' not in user.roles and 'ROLE_OWNER' not in user.roles %}selected{% endif %}>Usuario</option>
+                            <option value="ROLE_OWNER" {% if 'ROLE_OWNER' in user.roles %}selected{% endif %}>Owner</option>
                             <option value="ROLE_ADMIN" {% if 'ROLE_ADMIN' in user.roles %}selected{% endif %}>Admin</option>
                         </select>
                     </form>

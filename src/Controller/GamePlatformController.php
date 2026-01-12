@@ -19,12 +19,22 @@ use Doctrine\ORM\EntityManagerInterface;
 final class GamePlatformController extends AbstractController
 {
     #[Route('/game/platform', name: 'app_game_platform')]
-    public function index(): Response
+    public function index(JuegoRepository $juegoRepository): Response
     {
-        return $this->render('game_platform/index.html.twig', [
-            'controller_name' => 'GamePlatformController',
-        ]);
+        // Obtener todos los juegos activos que tienen una aplicación con apiKey
+        $juegos = $juegoRepository->createQueryBuilder('j')
+            ->innerJoin('j.aplicacion', 'a')
+            ->where('j.estado = :estado')
+            ->andWhere('a.estado = :estadoApp')
+            ->andWhere('a.apiKey IS NOT NULL')
+            ->setParameter('estado', true)
+            ->setParameter('estadoApp', true)
+            ->getQuery()
+            ->getResult();
 
+        return $this->render('game_platform/index.html.twig', [
+            'juegos' => $juegos,
+        ]);
     }
 
     // Prueba basica

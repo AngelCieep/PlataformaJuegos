@@ -24,8 +24,8 @@ class NuevoUsuario extends Fixture implements FixtureGroupInterface
 
     public function load(ObjectManager $manager): void
     {
-        $email = 'test@email';
-        $nombre = 'Txus';
+        $email = 'admin@scorenest.com';
+        $nombre = 'Admin User';
         $password = '12345678';
         $user = new User();
         $user->setEmail($email);

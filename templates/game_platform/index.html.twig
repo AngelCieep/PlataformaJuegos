@@ -166,71 +166,25 @@
     </div>
     
     <div class="games-grid">
-        <!-- Juego 1: Snake -->
-        <a href="{{ path('app_juegos', {'id': 1}) }}" class="game-card">
-            <div class="content">
-                <div class="icon">🐍</div>
-                <h3>Snake Game</h3>
-                <p>Juego clásico de la serpiente. Come manzanas y crece sin chocar.</p>
-                <span class="status-badge available">Disponible</span>
-                <div class="play-arrow">→</div>
+        {% if juegos|length > 0 %}
+            {% for juego in juegos %}
+                <a href="{{ path('app_juegos', {'id': juego.id}) }}" class="game-card">
+                    <div class="content">
+                        <div class="icon">🎮</div>
+                        <h3>{{ juego.nombre }}</h3>
+                        <p>{{ juego.description ?: 'Disfruta de este emocionante juego.' }}</p>
+                        <span class="status-badge available">Disponible</span>
+                        <div class="play-arrow">→</div>
+                    </div>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);">
+                <div style="font-size: 4em; margin-bottom: 20px;">🎮</div>
+                <h3 style="color: #1B4079; font-size: 1.8em; margin-bottom: 10px;">No hay juegos disponibles</h3>
+                <p style="color: #666; font-size: 1.1em;">Actualmente no hay juegos activos en la plataforma.</p>
             </div>
-        </a>
-        
-        <!-- Juego 2: Tetris -->
-        <a href="{{ path('app_juegos', {'id': 2}) }}" class="game-card">
-            <div class="content">
-                <div class="icon">🧱</div>
-                <h3>Tetris</h3>
-                <p>Juego de bloques clásico. Completa líneas para ganar puntos.</p>
-                <span class="status-badge available">Disponible</span>
-                <div class="play-arrow">→</div>
-            </div>
-        </a>
-        
-        <!-- Juego 3: Tres en Raya -->
-        <a href="{{ path('app_juegos', {'id': 3}) }}" class="game-card">
-            <div class="content">
-                <div class="icon">❌⭕</div>
-                <h3>Tres en Raya</h3>
-                <p>Clásico juego de estrategia. ¡Tres en línea para ganar!</p>
-                <span class="status-badge available">Disponible</span>
-                <div class="play-arrow">→</div>
-            </div>
-        </a>
-        
-        <!-- Juego 4: Ahorcado -->
-        <a href="{{ path('app_juegos', {'id': 4}) }}" class="game-card">
-            <div class="content">
-                <div class="icon">🪢</div>
-                <h3>Ahorcado</h3>
-                <p>Adivina la palabra antes de que se acabe el tiempo.</p>
-                <span class="status-badge available">Disponible</span>
-                <div class="play-arrow">→</div>
-            </div>
-        </a>
-
-        <!-- Juego 5: Memory -->
-        <a href="{{ path('app_juegos', {'id': 5}) }}" class="game-card">
-            <div class="content">
-                <div class="icon">🧠</div>
-                <h3>Memory Game</h3>
-                <p>Encuentra las parejas de cartas. Pon a prueba tu memoria.</p>
-                <span class="status-badge available">Disponible</span>
-                <div class="play-arrow">→</div>
-            </div>
-        </a>
-
-        <!-- Juego 6: Simon Dice -->
-        <a href="{{ path('app_juegos', {'id': 6}) }}" class="game-card">
-            <div class="content">
-                <div class="icon">🔊</div>
-                <h3>Simon Dice</h3>
-                <p>Repite la secuencia de colores. ¡Cada vez más difícil!</p>
-                <span class="status-badge available">Disponible</span>
-                <div class="play-arrow">→</div>
-            </div>
-        </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

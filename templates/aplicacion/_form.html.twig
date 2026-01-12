@@ -49,6 +49,18 @@
         font-size: 0.9em;
         margin-top: 5px;
     }
+    select.form-control {
+        background: white;
+        cursor: pointer;
+        padding-right: 35px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231B4079' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        appearance: none;
+    }
+    select.form-control option {
+        padding: 10px;
+    }
 </style>
 
 {{ form_start(form, {'attr': {'class': 'modern-form'}}) }}
@@ -63,6 +75,17 @@
         {{ form_widget(form.apiKey, {'attr': {'class': 'form-control', 'placeholder': 'API_KEY_123456789'}}) }}
         {{ form_errors(form.apiKey) }}
     </div>
+
+    {% if form.owner is defined %}
+    <div class="form-group">
+        {{ form_label(form.owner) }}
+        {{ form_widget(form.owner, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.owner) }}
+        <small style="color: #666; font-size: 0.85em; display: block; margin-top: 5px;">
+            <i class="bi bi-info-circle"></i> Selecciona el usuario propietario de esta aplicación
+        </small>
+    </div>
+    {% endif %}
     
     <div class="form-check">
         {{ form_widget(form.estado, {'attr': {'class': 'form-check-input'}}) }}
